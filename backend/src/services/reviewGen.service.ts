@@ -28,21 +28,36 @@ export class ReviewGenService {
   }
 
   /**
-   * Maps star rating to appropriate tone
+   * Maps star rating to appropriate tone and style
    */
-  private getToneForRating(rating: number): string {
+  private getToneForRating(rating: number): { tone: string; style: string } {
     switch (rating) {
       case 5:
-        return 'enthusiastic, warm';
+        return {
+          tone: 'genuinely delighted and impressed',
+          style: 'Share a specific moment or detail that made the experience special. Sound like you\'re excitedly telling a friend about a great find.',
+        };
       case 4:
-        return 'positive, confident';
+        return {
+          tone: 'happy and satisfied',
+          style: 'Highlight what you liked most. Sound confident and pleased with your purchase.',
+        };
       case 3:
-        return 'neutral, polite';
+        return {
+          tone: 'neutral but fair',
+          style: 'Be balanced and factual about the experience.',
+        };
       case 1:
       case 2:
-        return 'calm, factual, non-defamatory';
+        return {
+          tone: 'calm and constructive',
+          style: 'Be factual without being harsh. Focus on what could be improved.',
+        };
       default:
-        return 'neutral, polite';
+        return {
+          tone: 'neutral',
+          style: 'Be straightforward and honest.',
+        };
     }
   }
 
@@ -84,20 +99,36 @@ export class ReviewGenService {
     items: LineItem[]
   ): Promise<string> {
     try {
-      const tone = this.getToneForRating(rating);
+      const { tone, style } = this.getToneForRating(rating);
 
       // Format items for prompt
       const itemsText = items.map((item) => `- ${item.quantity}x ${item.name}`).join('\n');
 
-      const systemPrompt = `You write short, natural customer reviews for local boutiques.
-You must be truthful and only reference purchase items provided.
-No mention of AI. No promotions. 1–3 sentences.`;
+      const systemPrompt = `You are a real customer writing a Google review for a boutique shop you just visited.
 
-      const userPrompt = `Store: ${storeName}
-Star rating: ${rating}/5
-Items purchased:
+Your reviews sound AUTHENTIC and HUMAN - like texts to a friend, not corporate speak.
+
+Rules:
+- 2-3 sentences max
+- Mention at least one specific item you bought and why you love it
+- Include a sensory detail or emotion (how it feels, looks, the vibe)
+- Sound like a real person, not a marketing brochure
+- Never mention AI, discounts, or promotions
+- Never make claims you can't verify (like "best in town")
+
+Good example: "Finally found the perfect cashmere sweater! The staff helped me pick the right size and the quality is incredible - so soft. Will definitely be back."
+
+Bad example: "Great store with excellent products and wonderful service. Highly recommended!"`;
+
+      const userPrompt = `Write a review for ${storeName}.
+
+Your mood: ${tone}
+${style}
+
+You purchased:
 ${itemsText}
-Write a ${tone} review (1–3 sentences). Avoid unverifiable claims.`;
+
+Write your review now (2-3 sentences, be specific about what you bought):`;
 
       logger.info(
         { storeName, rating, itemCount: items.length },
@@ -110,8 +141,8 @@ Write a ${tone} review (1–3 sentences). Avoid unverifiable claims.`;
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userPrompt },
         ],
-        max_tokens: 150,
-        temperature: 0.7,
+        max_tokens: 200,
+        temperature: 0.85,
       });
 
       let reviewText = completion.choices[0]?.message?.content?.trim();

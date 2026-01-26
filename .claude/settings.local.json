@@ -25,7 +25,8 @@
       "Bash(git commit:*)",
       "Bash(git remote add:*)",
       "Bash(git branch:*)",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "Bash(DATABASE_URL=\"postgresql://postgres.alvgefqtmaxbrlysdnmg:00boutiquegeo00@aws-1-us-east-1.pooler.supabase.com:5432/postgres\" npm run mock:webhook:*)"
     ]
   }
 }
