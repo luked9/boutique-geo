@@ -29,61 +29,63 @@ export class ReviewGenService {
 
   /**
    * Maps star rating to appropriate tone and style
+   * All reviews are positive - lower stars just means shorter/simpler
    */
-  private getToneForRating(rating: number): { tone: string; style: string } {
+  private getToneForRating(rating: number): { tone: string; style: string; length: string } {
     switch (rating) {
       case 5:
         return {
-          tone: 'genuinely delighted and impressed',
-          style: 'Share a specific moment or detail that made the experience special. Sound like you\'re excitedly telling a friend about a great find.',
+          tone: 'absolutely thrilled and excited',
+          style: 'Be enthusiastic! Share specific details about what you love. Sound like you\'re excitedly recommending this to your best friend.',
+          length: '3 sentences with vivid details',
         };
       case 4:
         return {
-          tone: 'happy and satisfied',
-          style: 'Highlight what you liked most. Sound confident and pleased with your purchase.',
+          tone: 'very happy and impressed',
+          style: 'Share what you liked most about your purchase. Be warm and genuine.',
+          length: '2-3 sentences',
         };
       case 3:
         return {
-          tone: 'neutral but fair',
-          style: 'Be balanced and factual about the experience.',
+          tone: 'pleased and satisfied',
+          style: 'Keep it simple and positive. Mention what you bought and that you\'re happy with it.',
+          length: '2 sentences',
         };
       case 1:
       case 2:
         return {
-          tone: 'calm and constructive',
-          style: 'Be factual without being harsh. Focus on what could be improved.',
+          tone: 'content and appreciative',
+          style: 'Keep it brief and positive. Just mention the item and a simple nice thing about it.',
+          length: '1 short sentence',
         };
       default:
         return {
-          tone: 'neutral',
-          style: 'Be straightforward and honest.',
+          tone: 'happy',
+          style: 'Be positive and simple.',
+          length: '1-2 sentences',
         };
     }
   }
 
   /**
    * Generates fallback review template (used if AI fails)
+   * Always positive regardless of rating
    */
   private generateFallbackReview(
     storeName: string,
     rating: number,
     items: LineItem[]
   ): string {
-    const toneMap: Record<number, string> = {
-      5: 'wonderful',
-      4: 'great',
-      3: 'okay',
-      2: 'mediocre',
-      1: 'disappointing',
-    };
-
-    const tone = toneMap[rating] || 'okay';
     const itemNames = items
       .slice(0, 2)
       .map((item) => item.name)
       .join(' and ');
 
-    return `I had a ${tone} experience at ${storeName}. I purchased ${itemNames}.`;
+    if (rating >= 4) {
+      return `Love my new ${itemNames} from ${storeName}! Great quality and exactly what I was looking for.`;
+    } else {
+      return `Happy with my ${itemNames} from ${storeName}.`;
+    }
   }
 
   /**
@@ -99,24 +101,26 @@ export class ReviewGenService {
     items: LineItem[]
   ): Promise<string> {
     try {
-      const { tone, style } = this.getToneForRating(rating);
+      const { tone, style, length } = this.getToneForRating(rating);
 
       // Format items for prompt
       const itemsText = items.map((item) => `- ${item.quantity}x ${item.name}`).join('\n');
 
-      const systemPrompt = `You are a real customer writing a unique Google review for a boutique shop.
+      const systemPrompt = `You are a happy customer writing a positive Google review for a boutique shop.
 
-IMPORTANT: Every review must be DIFFERENT. Never repeat the same phrases or structure.
+CRITICAL RULES:
+- ALWAYS write a POSITIVE review, regardless of star rating
+- NEVER use em dashes (—) or double hyphens (--)
+- Every review must be DIFFERENT and unique
 
-Voice: Authentic, casual, like texting a friend about a great find.
+Voice: Authentic, warm, like telling a friend about a nice find.
 
-Rules:
-- 2-3 sentences, varied structure each time
-- Mention a SPECIFIC item you bought and one detail you love about it
-- Include how it made you feel OR a sensory detail (texture, color, fit)
-- NO generic phrases like "highly recommend" or "great service"
+More rules:
+- Mention a SPECIFIC item you bought and something nice about it
+- Include a sensory detail (how it feels, looks, fits) or emotion
+- NO generic phrases like "highly recommend" or "excellent service"
 - NO mentioning AI, discounts, sales, or promotions
-- Start your review differently each time (don't always start with "I" or "Just")`;
+- Vary your sentence starters (don't always start with "I")`;
 
       // Add randomness seed to encourage variety
       const variationHints = [
@@ -132,11 +136,12 @@ Rules:
 Mood: ${tone}
 ${style}
 Angle: ${hint}
+Length: ${length}
 
 Purchased:
 ${itemsText}
 
-Write a unique 2-3 sentence review:`;
+Write a POSITIVE review (${length}). No em dashes:`;
 
       logger.info(
         { storeName, rating, itemCount: items.length },
