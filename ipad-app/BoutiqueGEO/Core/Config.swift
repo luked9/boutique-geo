@@ -1,9 +1,8 @@
 import Foundation
 
 struct Config {
-    // Use Mac's local IP for phone QR scanning (same WiFi)
-    // Change back to localhost:3000 for production deployment
-    static let apiBaseURL = "http://172.168.0.157:3000"
+    // Production URL
+    static let apiBaseURL = "https://boutique-geo-production.up.railway.app"
     static let requestTimeout: TimeInterval = 30.0
     static let idlePollingInterval: TimeInterval = 7.0
     static let handoffTimeout: TimeInterval = 30.0
