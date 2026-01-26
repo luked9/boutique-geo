@@ -1,0 +1,97 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum ReviewPlatform {
+  GOOGLE
+  YELP
+  APPLE_MAPS
+}
+
+enum SessionStatus {
+  PENDING
+  DECLINED
+  APPROVED
+  POSTED_INTENT
+}
+
+model Store {
+  id                     String          @id @default(uuid())
+  publicId               String          @unique
+  name                   String
+  primaryReviewPlatform  ReviewPlatform  @default(GOOGLE)
+  reviewDestinationUrl   String
+  squareMerchantId       String?
+  squareLocationId       String?
+  accessTokenEnc         String?
+  refreshTokenEnc        String?
+  tokenExpiresAt         DateTime?
+  lastApprovedSessionId  String?
+  createdAt              DateTime        @default(now())
+  updatedAt              DateTime        @updatedAt
+
+  orders         Order[]
+  reviewSessions ReviewSession[]
+  auditEvents    AuditEvent[]
+
+  @@map("stores")
+}
+
+model Order {
+  id            String   @id @default(uuid())
+  storeId       String
+  squareOrderId String   @unique
+  totalAmount   Int      // cents
+  currency      String   @default("USD")
+  lineItemsJson Json     // Array of {name, quantity, amount}
+  createdAt     DateTime @default(now())
+
+  store          Store           @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  reviewSessions ReviewSession[]
+
+  @@index([storeId])
+  @@map("orders")
+}
+
+model ReviewSession {
+  id                  String        @id @default(uuid())
+  publicId            String        @unique
+  storeId             String
+  orderId             String?
+  status              SessionStatus @default(PENDING)
+  starRating          Int?
+  generatedReviewText String?
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
+
+  store       Store        @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  order       Order?       @relation(fields: [orderId], references: [id], onDelete: SetNull)
+  auditEvents AuditEvent[]
+
+  @@index([storeId])
+  @@index([orderId])
+  @@index([status])
+  @@map("review_sessions")
+}
+
+model AuditEvent {
+  id              String   @id @default(uuid())
+  storeId         String
+  reviewSessionId String?
+  eventType       String
+  payload         Json     @default("{}")
+  createdAt       DateTime @default(now())
+
+  store         Store          @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  reviewSession ReviewSession? @relation(fields: [reviewSessionId], references: [id], onDelete: SetNull)
+
+  @@index([storeId])
+  @@index([reviewSessionId])
+  @@index([eventType])
+  @@map("audit_events")
+}

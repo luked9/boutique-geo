@@ -1,0 +1,389 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', Arial, sans-serif;
+  background: linear-gradient(180deg, #f8f8f8 0%, #ffffff 50%, #f5f5f7 100%);
+  color: #000000;
+  line-height: 1.5;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -webkit-text-size-adjust: 100%;
+}
+
+.container {
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Header */
+.header {
+  text-align: center;
+  padding: 50px 24px 30px;
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.store-name {
+  font-size: 13px;
+  font-weight: 400;
+  letter-spacing: 4px;
+  color: #888888;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.page-title {
+  font-size: 32px;
+  font-weight: 200;
+  letter-spacing: 2px;
+  color: #000000;
+}
+
+/* Main Content */
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 24px;
+}
+
+.main-content.hide {
+  display: none;
+}
+
+/* Review Card - Glassmorphism */
+.review-card {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  border-radius: 24px;
+  padding: 32px 24px;
+  margin-bottom: 24px;
+  box-shadow:
+    0 4px 30px rgba(0, 0, 0, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  text-align: center;
+}
+
+.quote-mark {
+  font-size: 56px;
+  font-weight: 200;
+  color: #D4AF37;
+  line-height: 0.8;
+  display: block;
+}
+
+.quote-mark.open {
+  margin-bottom: 8px;
+}
+
+.quote-mark.close {
+  margin-top: 8px;
+}
+
+.review-text {
+  font-size: 18px;
+  font-weight: 300;
+  line-height: 1.7;
+  color: #1a1a1a;
+  padding: 12px 8px;
+}
+
+/* Action Buttons - Big and Easy */
+.button-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: auto;
+  padding: 24px 0 40px;
+}
+
+.btn {
+  width: 100%;
+  padding: 20px 24px;
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: 1px;
+  border-radius: 16px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  -webkit-tap-highlight-color: transparent;
+  min-height: 60px;
+}
+
+.btn:active {
+  transform: scale(0.98);
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Primary - Black solid */
+.btn-primary {
+  background: #000000;
+  color: #ffffff;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+}
+
+.btn-primary:active:not(:disabled) {
+  background: #222222;
+}
+
+/* Secondary - Glass effect */
+.btn-secondary {
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: #000000;
+  border: 1.5px solid rgba(0, 0, 0, 0.1);
+  box-shadow:
+    0 2px 12px rgba(0, 0, 0, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 1);
+}
+
+.btn-secondary:active:not(:disabled) {
+  background: rgba(245, 245, 245, 0.95);
+}
+
+/* Success state */
+.btn-success {
+  background: linear-gradient(135deg, #D4AF37 0%, #C9A227 100%);
+  color: #ffffff;
+  pointer-events: none;
+  box-shadow: 0 4px 14px rgba(212, 175, 55, 0.3);
+}
+
+/* Tertiary - Text only */
+.btn-tertiary {
+  background: transparent;
+  color: #666666;
+  padding: 16px 24px;
+  min-height: auto;
+}
+
+.btn-tertiary:active:not(:disabled) {
+  color: #000000;
+}
+
+/* Button Icons */
+.btn-icon {
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+}
+
+/* Instructions - Minimal */
+.instructions {
+  text-align: center;
+  padding: 16px 0;
+  color: #888888;
+  font-size: 13px;
+  font-weight: 400;
+  letter-spacing: 0.5px;
+}
+
+/* Thank You Screen */
+.thank-you {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 80px 32px;
+  min-height: 70vh;
+}
+
+.thank-you.show {
+  display: flex;
+}
+
+.thank-you-icon {
+  width: 80px;
+  height: 80px;
+  background: linear-gradient(135deg, #D4AF37 0%, #C9A227 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 32px;
+  box-shadow: 0 8px 24px rgba(212, 175, 55, 0.3);
+}
+
+.thank-you-icon svg {
+  width: 40px;
+  height: 40px;
+  color: #ffffff;
+}
+
+.thank-you h2 {
+  font-size: 36px;
+  font-weight: 200;
+  letter-spacing: 3px;
+  color: #000000;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+}
+
+.thank-you p {
+  font-size: 16px;
+  font-weight: 300;
+  color: #666666;
+  line-height: 1.6;
+  max-width: 280px;
+}
+
+.thank-you .close-text {
+  margin-top: 40px;
+  font-size: 12px;
+  letter-spacing: 2px;
+  color: #aaaaaa;
+  text-transform: uppercase;
+}
+
+/* Error Message */
+.error-message {
+  background: rgba(220, 38, 38, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(220, 38, 38, 0.2);
+  color: #dc2626;
+  padding: 16px 20px;
+  border-radius: 12px;
+  margin: 16px 24px;
+  font-size: 14px;
+  font-weight: 400;
+  text-align: center;
+  display: none;
+}
+
+.error-message.show {
+  display: block;
+}
+
+/* No Session Page */
+.no-session {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 80px 32px;
+  min-height: 100vh;
+}
+
+.no-session h1 {
+  font-size: 24px;
+  font-weight: 200;
+  letter-spacing: 4px;
+  color: #000000;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+}
+
+.no-session p {
+  font-size: 15px;
+  font-weight: 300;
+  color: #888888;
+  line-height: 1.7;
+  max-width: 280px;
+}
+
+/* Connected Page */
+.connected {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 80px 32px;
+  min-height: 100vh;
+}
+
+.connected h1 {
+  font-size: 24px;
+  font-weight: 200;
+  letter-spacing: 4px;
+  color: #000000;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+}
+
+.connected p {
+  font-size: 15px;
+  font-weight: 300;
+  color: #888888;
+  line-height: 1.7;
+  max-width: 280px;
+}
+
+/* Divider */
+.divider {
+  width: 40px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #D4AF37, transparent);
+  margin: 20px auto;
+}
+
+/* Safe area for notched phones */
+@supports (padding-top: env(safe-area-inset-top)) {
+  .header {
+    padding-top: calc(50px + env(safe-area-inset-top));
+  }
+
+  .button-group {
+    padding-bottom: calc(40px + env(safe-area-inset-bottom));
+  }
+}
+
+/* Small phones */
+@media (max-width: 375px) {
+  .page-title {
+    font-size: 28px;
+  }
+
+  .review-text {
+    font-size: 16px;
+  }
+
+  .btn {
+    padding: 18px 20px;
+    font-size: 14px;
+  }
+}
+
+/* Larger phones */
+@media (min-width: 414px) {
+  .review-card {
+    padding: 40px 32px;
+  }
+
+  .review-text {
+    font-size: 19px;
+  }
+}

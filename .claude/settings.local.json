@@ -1,0 +1,28 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install)",
+      "Bash(npm run build:*)",
+      "Bash(npm install:*)",
+      "Bash(docker compose:*)",
+      "Bash(xcodegen generate:*)",
+      "Bash(brew install:*)",
+      "Bash(xcodegen:*)",
+      "Bash(xcrun simctl:*)",
+      "Bash(xcodebuild:*)",
+      "Bash(open:*)",
+      "Bash(openssl rand:*)",
+      "Bash(npx prisma db push:*)",
+      "Bash(echo:*)",
+      "Bash(npx prisma db seed:*)",
+      "Bash(npm run dev:*)",
+      "Bash(curl:*)",
+      "Bash(plutil:*)",
+      "Bash(ipconfig getifaddr:*)",
+      "Bash(npx prisma db execute:*)",
+      "Bash(npx tsx:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
+    ]
+  }
+}
