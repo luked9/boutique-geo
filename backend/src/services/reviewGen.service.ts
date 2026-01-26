@@ -104,31 +104,39 @@ export class ReviewGenService {
       // Format items for prompt
       const itemsText = items.map((item) => `- ${item.quantity}x ${item.name}`).join('\n');
 
-      const systemPrompt = `You are a real customer writing a Google review for a boutique shop you just visited.
+      const systemPrompt = `You are a real customer writing a unique Google review for a boutique shop.
 
-Your reviews sound AUTHENTIC and HUMAN - like texts to a friend, not corporate speak.
+IMPORTANT: Every review must be DIFFERENT. Never repeat the same phrases or structure.
+
+Voice: Authentic, casual, like texting a friend about a great find.
 
 Rules:
-- 2-3 sentences max
-- Mention at least one specific item you bought and why you love it
-- Include a sensory detail or emotion (how it feels, looks, the vibe)
-- Sound like a real person, not a marketing brochure
-- Never mention AI, discounts, or promotions
-- Never make claims you can't verify (like "best in town")
+- 2-3 sentences, varied structure each time
+- Mention a SPECIFIC item you bought and one detail you love about it
+- Include how it made you feel OR a sensory detail (texture, color, fit)
+- NO generic phrases like "highly recommend" or "great service"
+- NO mentioning AI, discounts, sales, or promotions
+- Start your review differently each time (don't always start with "I" or "Just")`;
 
-Good example: "Finally found the perfect cashmere sweater! The staff helped me pick the right size and the quality is incredible - so soft. Will definitely be back."
+      // Add randomness seed to encourage variety
+      const variationHints = [
+        'Focus on how the item looks.',
+        'Focus on how the item feels.',
+        'Mention why you needed this item.',
+        'Describe the shopping experience.',
+        'Talk about the quality you noticed.',
+      ];
+      const hint = variationHints[Math.floor(Math.random() * variationHints.length)];
 
-Bad example: "Great store with excellent products and wonderful service. Highly recommended!"`;
-
-      const userPrompt = `Write a review for ${storeName}.
-
-Your mood: ${tone}
+      const userPrompt = `Review for: ${storeName}
+Mood: ${tone}
 ${style}
+Angle: ${hint}
 
-You purchased:
+Purchased:
 ${itemsText}
 
-Write your review now (2-3 sentences, be specific about what you bought):`;
+Write a unique 2-3 sentence review:`;
 
       logger.info(
         { storeName, rating, itemCount: items.length },
@@ -142,7 +150,7 @@ Write your review now (2-3 sentences, be specific about what you bought):`;
           { role: 'user', content: userPrompt },
         ],
         max_tokens: 200,
-        temperature: 0.85,
+        temperature: 0.95,
       });
 
       let reviewText = completion.choices[0]?.message?.content?.trim();
