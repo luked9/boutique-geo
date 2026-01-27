@@ -23,7 +23,7 @@ class RatingViewModel: ObservableObject {
                     rating: selectedRating
                 )
 
-                appState.navigateToConsent(review: response.generatedReviewText)
+                appState.navigateToConsent(review: response.generatedReviewText, rating: self.selectedRating)
             } catch {
                 isLoading = false
                 if let apiError = error as? APIError {

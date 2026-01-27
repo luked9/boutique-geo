@@ -12,10 +12,14 @@ struct ThankYouView: View {
                 Spacer()
 
                 VStack(spacing: Spacing.xxxl) {
-                    // Gold accent star
-                    Image(systemName: "star.fill")
-                        .font(.system(size: 48, weight: .thin))
-                        .foregroundColor(.accent)
+                    // Display stars based on rating
+                    HStack(spacing: 8) {
+                        ForEach(1...5, id: \.self) { index in
+                            Image(systemName: index <= appState.selectedRating ? "star.fill" : "star")
+                                .font(.system(size: 32, weight: .thin))
+                                .foregroundColor(index <= appState.selectedRating ? .accent : .gray.opacity(0.3))
+                        }
+                    }
 
                     VStack(spacing: Spacing.lg) {
                         Text("THANK YOU")

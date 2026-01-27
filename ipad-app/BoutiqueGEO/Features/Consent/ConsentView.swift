@@ -21,6 +21,16 @@ struct ConsentView: View {
                         .font(Typography.displaySmall)
                         .tracking(4)
                         .foregroundColor(.black)
+
+                    // Display stars based on rating
+                    HStack(spacing: 8) {
+                        ForEach(1...5, id: \.self) { index in
+                            Image(systemName: index <= appState.selectedRating ? "star.fill" : "star")
+                                .font(.system(size: 24, weight: .thin))
+                                .foregroundColor(index <= appState.selectedRating ? .accent : .gray.opacity(0.3))
+                        }
+                    }
+                    .padding(.top, Spacing.sm)
                 }
 
                 Spacer()

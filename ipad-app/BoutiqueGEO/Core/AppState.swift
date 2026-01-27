@@ -26,6 +26,7 @@ class AppState: ObservableObject {
     @Published var currentSession: ReviewSession?
     @Published var currentOrder: Order?
     @Published var generatedReview: String?
+    @Published var selectedRating: Int = 0
     @Published var errorMessage: String?
 
     func initialize() {
@@ -59,9 +60,10 @@ class AppState: ObservableObject {
         }
     }
 
-    func navigateToConsent(review: String) {
+    func navigateToConsent(review: String, rating: Int) {
         withAnimation {
             generatedReview = review
+            selectedRating = rating
             currentScreen = .consent
         }
     }
@@ -86,6 +88,7 @@ class AppState: ObservableObject {
         currentSession = nil
         currentOrder = nil
         generatedReview = nil
+        selectedRating = 0
         errorMessage = nil
     }
 
