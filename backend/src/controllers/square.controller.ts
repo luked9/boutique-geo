@@ -225,9 +225,9 @@ export class SquareController {
 
       logger.info({ eventType }, 'Received Square webhook');
 
-      // Handle payment.updated event
-      if (eventType === 'payment.updated') {
-        await this.handlePaymentUpdated(event);
+      // Handle payment events
+      if (eventType === 'payment.updated' || eventType === 'payment.created' || eventType === 'payment.completed') {
+        await this.handlePaymentEvent(event);
       }
 
       return res.json({ ok: true });
@@ -264,9 +264,9 @@ export class SquareController {
   }
 
   /**
-   * Handle payment.updated webhook event
+   * Handle payment webhook events (created, updated, completed)
    */
-  private async handlePaymentUpdated(event: any) {
+  private async handlePaymentEvent(event: any) {
     try {
       const payment = event.data?.object?.payment;
 
@@ -351,7 +351,7 @@ export class SquareController {
         'Created order and pending review session from webhook'
       );
     } catch (error) {
-      logger.error({ error }, 'Failed to handle payment.updated event');
+      logger.error({ error }, 'Failed to handle payment event');
     }
   }
 }
