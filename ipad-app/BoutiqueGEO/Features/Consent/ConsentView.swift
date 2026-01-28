@@ -35,11 +35,12 @@ struct ConsentView: View {
                 .padding(.bottom, 40)
 
                 // Review text in elegant quote style
-                VStack(spacing: Spacing.sm) {
+                VStack(spacing: 0) {
                     // Opening quote mark
                     Text("\u{201C}")
                         .font(.system(size: 60, weight: .thin))
                         .foregroundColor(.accent)
+                        .padding(.bottom, 12)
 
                     Text(appState.generatedReview ?? "")
                         .font(Typography.bodyLarge)
@@ -54,6 +55,7 @@ struct ConsentView: View {
                     Text("\u{201D}")
                         .font(.system(size: 60, weight: .thin))
                         .foregroundColor(.accent)
+                        .padding(.top, 12)
                 }
 
                 if let error = viewModel.errorMessage {
