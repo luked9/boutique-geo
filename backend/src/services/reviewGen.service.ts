@@ -93,7 +93,7 @@ export class ReviewGenService {
    * @param storeName - Name of the store
    * @param rating - Star rating (1-5)
    * @param items - Array of purchased items with name and quantity
-   * @returns Generated review text (max 400 chars)
+   * @returns Generated review text (40-80 words)
    */
   async generateReview(
     storeName: string,
@@ -110,8 +110,9 @@ export class ReviewGenService {
 
 CRITICAL RULES:
 - ALWAYS write a POSITIVE review, regardless of star rating
-- NEVER use em dashes (—) or double hyphens (--)
-- Every review must be DIFFERENT and unique
+- NEVER use em dashes (\u2014) or en dashes (\u2013) or double hyphens (--). NEVER. Not even once.
+- Every single review MUST be completely unique and different from any other
+- Write between 40 and 80 words. This is a strict range.
 
 Voice: Authentic, warm, like telling a friend about a nice find.
 
@@ -120,28 +121,49 @@ More rules:
 - Include a sensory detail (how it feels, looks, fits) or emotion
 - NO generic phrases like "highly recommend" or "excellent service"
 - NO mentioning AI, discounts, sales, or promotions
-- Vary your sentence starters (don't always start with "I")`;
+- Vary your sentence structure, vocabulary, and opening words every time
+- Use different adjectives and descriptions each time`;
 
       // Add randomness seed to encourage variety
       const variationHints = [
-        'Focus on how the item looks.',
-        'Focus on how the item feels.',
-        'Mention why you needed this item.',
-        'Describe the shopping experience.',
-        'Talk about the quality you noticed.',
+        'Focus on how the item looks when you wear it.',
+        'Focus on how the item feels against your skin.',
+        'Mention why you needed this item in your life.',
+        'Describe the moment you first saw the item.',
+        'Talk about the quality and craftsmanship you noticed.',
+        'Mention how a friend or family member reacted to it.',
+        'Describe how it fits into your existing wardrobe.',
+        'Talk about the texture or material.',
+        'Describe the color and how it catches light.',
+        'Mention where you plan to wear or use it first.',
+        'Talk about how it made you feel when you tried it on.',
+        'Describe what caught your eye about it initially.',
       ];
       const hint = variationHints[Math.floor(Math.random() * variationHints.length)];
+
+      // Random structure hint for even more variety
+      const structureHints = [
+        'Start with the item name.',
+        'Start with an emotion or feeling.',
+        'Start with a detail about the store visit.',
+        'Start with what you were looking for.',
+        'Start with a compliment about the item.',
+        'Start by describing the moment you found it.',
+      ];
+      const structureHint = structureHints[Math.floor(Math.random() * structureHints.length)];
 
       const userPrompt = `Review for: ${storeName}
 Mood: ${tone}
 ${style}
 Angle: ${hint}
-Length: ${length}
+Structure: ${structureHint}
+Word count: strictly between 40 and 80 words.
+Random seed: ${Date.now()}
 
 Purchased:
 ${itemsText}
 
-Write a POSITIVE review (${length}). No em dashes:`;
+Write a POSITIVE review (40-80 words). ABSOLUTELY NO em dashes or en dashes:`;
 
       logger.info(
         { storeName, rating, itemCount: items.length },
@@ -154,8 +176,8 @@ Write a POSITIVE review (${length}). No em dashes:`;
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userPrompt },
         ],
-        max_tokens: 200,
-        temperature: 0.95,
+        max_tokens: 300,
+        temperature: 1.0,
       });
 
       let reviewText = completion.choices[0]?.message?.content?.trim();
@@ -165,10 +187,8 @@ Write a POSITIVE review (${length}). No em dashes:`;
         return this.generateFallbackReview(storeName, rating, items);
       }
 
-      // Enforce max 400 characters
-      if (reviewText.length > 400) {
-        reviewText = reviewText.substring(0, 397) + '...';
-      }
+      // Strip any em dashes or en dashes that slipped through
+      reviewText = reviewText.replace(/[\u2014\u2013]/g, ',');
 
       logger.info(
         { reviewLength: reviewText.length },

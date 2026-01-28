@@ -51,7 +51,7 @@ struct ConsentView: View {
                             .lineSpacing(8)
                             .padding(.horizontal, Spacing.xxxl)
                     }
-                    .frame(maxHeight: 350)
+                    .frame(maxHeight: 500)
                     .frame(maxWidth: 600)
 
                     // Closing quote mark
