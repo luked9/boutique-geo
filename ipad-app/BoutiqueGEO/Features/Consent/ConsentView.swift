@@ -32,11 +32,10 @@ struct ConsentView: View {
                     }
                     .padding(.top, Spacing.sm)
                 }
-
-                Spacer()
+                .padding(.bottom, 40)
 
                 // Review text in elegant quote style
-                VStack(spacing: Spacing.sm) {
+                VStack(spacing: Spacing.lg) {
                     // Opening quote mark
                     Text("\u{201C}")
                         .font(.system(size: 60, weight: .thin))
@@ -57,14 +56,12 @@ struct ConsentView: View {
                         .foregroundColor(.accent)
                 }
 
-                Spacer()
-
                 if let error = viewModel.errorMessage {
                     Text(error)
                         .font(Typography.bodySmall)
                         .foregroundColor(.error)
                         .multilineTextAlignment(.center)
-                        .padding(.bottom, Spacing.lg)
+                        .padding(.top, Spacing.lg)
                 }
 
                 // Buttons
@@ -87,7 +84,9 @@ struct ConsentView: View {
                         }
                     )
                 }
-                .padding(.bottom, Spacing.xl)
+                .padding(.top, 40)
+
+                Spacer()
             }
             .padding(.horizontal, Spacing.xxxl)
         }
