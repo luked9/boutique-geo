@@ -237,7 +237,14 @@ export class LandingController {
       .replace(/\$\{storeName\}/g, this.escapeHtml(data.storeName))
       .replace(/\$\{reviewText\}/g, this.escapeHtml(data.reviewText))
       .replace(/\$\{sessionId\}/g, this.escapeHtml(data.sessionId))
-      .replace(/\$\{reviewDestinationUrl\}/g, this.escapeHtml(data.reviewDestinationUrl));
+      .replace(/\$\{reviewDestinationUrl\}/g, this.escapeJs(data.reviewDestinationUrl));
+  }
+
+  /**
+   * Escape for use inside a JavaScript string (single-quoted)
+   */
+  private escapeJs(text: string): string {
+    return text.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
   }
 
   /**
