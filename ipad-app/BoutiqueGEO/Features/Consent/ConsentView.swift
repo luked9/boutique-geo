@@ -35,7 +35,7 @@ struct ConsentView: View {
                 .padding(.bottom, 40)
 
                 // Review text in elegant quote style
-                VStack(spacing: Spacing.lg) {
+                VStack(spacing: Spacing.sm) {
                     // Opening quote mark
                     Text("\u{201C}")
                         .font(.system(size: 60, weight: .thin))
