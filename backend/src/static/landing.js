@@ -129,18 +129,13 @@
       return;
     }
 
-    setButtonState(elements.platformBtn, 'loading', 'platform');
-
     // Track platform click (non-critical)
     if (sessionId) {
       makeApiCall(`/api/v1/review/${sessionId}/platform_clicked`).catch(() => {});
     }
 
-    setButtonState(elements.platformBtn, 'success', 'platform');
-
-    setTimeout(() => {
-      window.open(reviewDestinationUrl, '_blank', 'noopener,noreferrer');
-    }, 300);
+    // Navigate directly - window.open in setTimeout gets blocked on mobile
+    window.location.href = reviewDestinationUrl;
   }
 
   async function handleDoneClick() {
