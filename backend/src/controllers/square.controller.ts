@@ -199,7 +199,7 @@ export class SquareController {
    */
   async webhook(req: Request, res: Response) {
     try {
-      const signature = req.headers['x-square-signature'] as string;
+      const signature = req.headers['x-square-hmacsha256-signature'] as string;
       const webhookUrl = `${config.APP_BASE_URL}/api/v1/square/webhook`;
 
       if (!signature) {
@@ -209,9 +209,9 @@ export class SquareController {
         });
       }
 
-      // Verify webhook signature
-      const body = JSON.stringify(req.body);
-      const isValid = this.verifyWebhookSignature(body, signature, webhookUrl);
+      // Verify webhook signature using raw body
+      const rawBody = (req as any).rawBody || JSON.stringify(req.body);
+      const isValid = this.verifyWebhookSignature(rawBody, signature, webhookUrl);
 
       if (!isValid) {
         logger.warn('Webhook signature verification failed');
