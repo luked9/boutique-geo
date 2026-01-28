@@ -123,19 +123,11 @@
     }
   }
 
-  async function handlePlatformClick() {
-    if (!reviewDestinationUrl) {
-      showError('Review destination not configured');
-      return;
-    }
-
-    // Track platform click (non-critical)
+  function handlePlatformClick() {
+    // Track platform click (non-critical) - navigation handled by <a> href
     if (sessionId) {
       makeApiCall(`/api/v1/review/${sessionId}/platform_clicked`).catch(() => {});
     }
-
-    // Navigate directly - window.open in setTimeout gets blocked on mobile
-    window.location.href = reviewDestinationUrl;
   }
 
   async function handleDoneClick() {
