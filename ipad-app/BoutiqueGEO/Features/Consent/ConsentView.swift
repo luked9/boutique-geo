@@ -47,9 +47,9 @@ struct ConsentView: View {
                         .foregroundColor(.black)
                         .multilineTextAlignment(.center)
                         .lineSpacing(8)
-                        .padding(.horizontal, Spacing.xxxl)
                         .fixedSize(horizontal: false, vertical: true)
                         .frame(maxWidth: 600)
+                        .padding(.horizontal, Spacing.xxxl)
 
                     // Closing quote mark
                     Text("\u{201D}")
