@@ -34,25 +34,22 @@ struct ConsentView: View {
                 }
 
                 Spacer()
-                    .frame(height: 50)
 
                 // Review text in elegant quote style
-                VStack(spacing: Spacing.lg) {
+                VStack(spacing: Spacing.sm) {
                     // Opening quote mark
                     Text("\u{201C}")
                         .font(.system(size: 60, weight: .thin))
                         .foregroundColor(.accent)
 
-                    ScrollView {
-                        Text(appState.generatedReview ?? "")
-                            .font(Typography.bodyLarge)
-                            .foregroundColor(.black)
-                            .multilineTextAlignment(.center)
-                            .lineSpacing(8)
-                            .padding(.horizontal, Spacing.xxxl)
-                    }
-                    .frame(maxHeight: 500)
-                    .frame(maxWidth: 600)
+                    Text(appState.generatedReview ?? "")
+                        .font(Typography.bodyLarge)
+                        .foregroundColor(.black)
+                        .multilineTextAlignment(.center)
+                        .lineSpacing(8)
+                        .padding(.horizontal, Spacing.xxxl)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .frame(maxWidth: 600)
 
                     // Closing quote mark
                     Text("\u{201D}")
@@ -61,7 +58,6 @@ struct ConsentView: View {
                 }
 
                 Spacer()
-                    .frame(height: 50)
 
                 if let error = viewModel.errorMessage {
                     Text(error)
@@ -91,8 +87,7 @@ struct ConsentView: View {
                         }
                     )
                 }
-
-                Spacer()
+                .padding(.bottom, Spacing.xl)
             }
             .padding(.horizontal, Spacing.xxxl)
         }
