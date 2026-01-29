@@ -27,9 +27,9 @@ class IdleViewModel: ObservableObject {
     }
 
     func handleTap(appState: AppState) {
-        Task {
-            await checkForPendingSession(appState: appState)
-        }
+        // Restart polling so the immediate check isn't followed by a stale 7s sleep
+        stopPolling()
+        startPolling(appState: appState)
     }
 
     func showSettings(appState: AppState) {
