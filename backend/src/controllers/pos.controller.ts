@@ -36,7 +36,7 @@ export class POSController {
    */
   async oauthStart(req: Request, res: Response) {
     try {
-      const provider = req.params.provider;
+      const provider = req.params.provider?.toUpperCase();
       const { storePublicId } = req.query;
 
       // Validate provider
@@ -81,7 +81,7 @@ export class POSController {
    */
   async oauthCallback(req: Request, res: Response) {
     try {
-      const provider = req.params.provider;
+      const provider = req.params.provider?.toUpperCase();
       const { code, state, error: oauthError, error_description } = req.query;
 
       if (!provider) {
@@ -179,7 +179,7 @@ export class POSController {
    */
   async webhook(req: Request, res: Response) {
     try {
-      const provider = req.params.provider;
+      const provider = req.params.provider?.toUpperCase();
 
       if (!provider || !providerRegistry.isSupported(provider)) {
         return res.status(400).json({ error: 'Unsupported provider' });
@@ -264,7 +264,7 @@ export class POSController {
   async disconnect(req: Request, res: Response) {
     try {
       const { storePublicId } = req.params;
-      const provider = req.params.provider;
+      const provider = req.params.provider?.toUpperCase();
 
       if (!provider || !providerRegistry.isSupported(provider)) {
         return res.status(400).json({ error: 'Unsupported provider' });
@@ -296,7 +296,7 @@ export class POSController {
   async setLocation(req: Request, res: Response) {
     try {
       const { storePublicId } = req.params;
-      const provider = req.params.provider;
+      const provider = req.params.provider?.toUpperCase();
       const { locationId } = req.body;
 
       if (!locationId || typeof locationId !== 'string') {
