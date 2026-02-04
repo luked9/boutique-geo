@@ -22,7 +22,7 @@ export class LightspeedProvider extends BasePOSProvider {
     this.logInfo('LightspeedProvider initialized');
   }
 
-  getOAuthUrl(storePublicId: string, redirectUri: string): string {
+  getOAuthUrl(storePublicId: string, redirectUri: string, _options?: { shop?: string }): string {
     const state = this.encodeState(storePublicId);
 
     const params = new URLSearchParams({

@@ -90,9 +90,10 @@ export interface IPOSProvider {
    * Generates OAuth authorization URL
    * @param storePublicId - Store public ID to include in state
    * @param redirectUri - OAuth callback URL
+   * @param options - Provider-specific options (e.g., shop domain for Shopify)
    * @returns Full authorization URL to redirect user to
    */
-  getOAuthUrl(storePublicId: string, redirectUri: string): string;
+  getOAuthUrl(storePublicId: string, redirectUri: string, options?: { shop?: string }): string;
 
   /**
    * Exchanges OAuth authorization code for access/refresh tokens

@@ -32,7 +32,25 @@
       "Bash(DATABASE_URL=\"postgresql://postgres.alvgefqtmaxbrlysdnmg:00boutiquegeo00@aws-1-us-east-1.pooler.supabase.com:5432/postgres\" ENCRYPTION_KEY=\"f8df7dfb03d677402750b35829e538248e1de6069712b71ef2a4998d216dee7d\" SQUARE_APP_ID=\"sq0idp-jmLwaLmytNxcaHefPQ5kjQ\" SQUARE_ENV=\"production\" npx tsx -e \"\nconst { PrismaClient } = require\\(''@prisma/client''\\);\nconst { tokenCryptoService } = require\\(''./src/services/tokenCrypto.service''\\);\nconst { squareService } = require\\(''./src/services/square.service''\\);\nconst prisma = new PrismaClient\\(\\);\nasync function main\\(\\) {\n  const store = await prisma.store.findFirst\\({ orderBy: { createdAt: ''desc'' } }\\);\n  const accessToken = tokenCryptoService.decrypt\\(store.accessTokenEnc\\);\n  const locations = await squareService.getLocations\\(accessToken\\);\n  console.log\\(''Locations:'', JSON.stringify\\(locations, null, 2\\)\\);\n  if \\(locations.length > 0\\) {\n    await prisma.store.update\\({ where: { id: store.id }, data: { squareLocationId: locations[0].id } }\\);\n    console.log\\(''Set location ID:'', locations[0].id\\);\n  }\n}\nmain\\(\\).finally\\(\\(\\) => prisma.$disconnect\\(\\)\\);\n\")",
       "Bash(DATABASE_URL=\"postgresql://postgres.alvgefqtmaxbrlysdnmg:00boutiquegeo00@aws-1-us-east-1.pooler.supabase.com:5432/postgres\" npx tsx -e \"\nconst { PrismaClient } = require\\(''@prisma/client''\\);\nconst prisma = new PrismaClient\\(\\);\nasync function main\\(\\) {\n  const store = await prisma.store.findFirst\\({ orderBy: { createdAt: ''desc'' } }\\);\n  console.log\\(''Store:'', store.publicId\\);\n  console.log\\(''Merchant ID:'', store.squareMerchantId\\);\n  console.log\\(''Location ID:'', store.squareLocationId\\);\n  console.log\\(''Has access token:'', !!store.accessTokenEnc\\);\n  console.log\\(''Has refresh token:'', !!store.refreshTokenEnc\\);\n}\nmain\\(\\).finally\\(\\(\\) => prisma.$disconnect\\(\\)\\);\n\")",
       "Bash(DATABASE_URL=\"postgresql://postgres.alvgefqtmaxbrlysdnmg:00boutiquegeo00@aws-1-us-east-1.pooler.supabase.com:5432/postgres\" npx tsx -e \"\nconst { PrismaClient } = require\\(''@prisma/client''\\);\nconst prisma = new PrismaClient\\(\\);\nasync function main\\(\\) {\n  const store = await prisma.store.findFirst\\({ orderBy: { createdAt: ''desc'' } }\\);\n  console.log\\(''reviewDestinationUrl:'', store.reviewDestinationUrl\\);\n  console.log\\(''name:'', store.name\\);\n}\nmain\\(\\).finally\\(\\(\\) => prisma.$disconnect\\(\\)\\);\n\")",
-      "Bash(DATABASE_URL=\"postgresql://postgres.alvgefqtmaxbrlysdnmg:00boutiquegeo00@aws-1-us-east-1.pooler.supabase.com:5432/postgres\" npx tsx:*)"
+      "Bash(DATABASE_URL=\"postgresql://postgres.alvgefqtmaxbrlysdnmg:00boutiquegeo00@aws-1-us-east-1.pooler.supabase.com:5432/postgres\" npx tsx:*)",
+      "WebSearch",
+      "WebFetch(domain:developers.google.com)",
+      "WebFetch(domain:www.google.com)",
+      "WebFetch(domain:local.yahoo.com)",
+      "Bash(ls:*)",
+      "Bash(npx prisma:*)",
+      "Bash(npx tsc:*)",
+      "Bash(npx ts-node:*)",
+      "Bash(source .env)",
+      "Bash(ngrok config add-authtoken:*)",
+      "Bash(ngrok http:*)",
+      "Bash(python3:*)",
+      "Bash(pkill:*)",
+      "Bash(lsof:*)",
+      "Bash(xargs kill:*)",
+      "Bash(railway status:*)",
+      "Bash(railway login:*)",
+      "Bash(railway whoami:*)"
     ]
   }
 }

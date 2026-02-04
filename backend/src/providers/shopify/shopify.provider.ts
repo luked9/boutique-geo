@@ -30,16 +30,23 @@ export class ShopifyProvider extends BasePOSProvider {
 
   /**
    * Generates Shopify OAuth URL
-   * Note: For Shopify, the shop domain needs to be provided separately
-   * This implementation expects storePublicId to contain the shop domain encoded
+   * Shopify requires the shop domain to construct the correct OAuth URL
    */
-  getOAuthUrl(storePublicId: string, redirectUri: string): string {
-    // For Shopify, we need the shop domain which should be passed via query params
-    // The state will contain our store reference
+  getOAuthUrl(storePublicId: string, redirectUri: string, options?: { shop?: string }): string {
+    const shop = options?.shop;
+    if (!shop) {
+      throw new Error('Shop domain is required for Shopify OAuth');
+    }
+
+    // Normalize shop domain (remove protocol if present, ensure .myshopify.com)
+    let shopDomain = shop.replace(/^https?:\/\//, '').replace(/\/$/, '');
+    if (!shopDomain.includes('.myshopify.com')) {
+      shopDomain = `${shopDomain}.myshopify.com`;
+    }
+
+    // State contains our store reference for the callback
     const state = this.encodeState(storePublicId);
 
-    // This URL pattern is for when we know the shop
-    // In practice, you'd collect the shop domain first
     const params = new URLSearchParams({
       client_id: shopifyConfig.clientId,
       scope: shopifyConfig.scopes,
@@ -47,12 +54,10 @@ export class ShopifyProvider extends BasePOSProvider {
       state,
     });
 
-    // For embedded/admin apps, use this pattern:
-    // https://{shop}.myshopify.com/admin/oauth/authorize?{params}
-    // For now, we'll use the Shopify Partners OAuth URL
-    const url = `https://shopify.com/admin/oauth/authorize?${params.toString()}`;
+    // Use the shop-specific OAuth URL
+    const url = `https://${shopDomain}/admin/oauth/authorize?${params.toString()}`;
 
-    this.logDebug('Generated OAuth URL', { storePublicId, redirectUri });
+    this.logDebug('Generated OAuth URL', { storePublicId, shopDomain, redirectUri });
     return url;
   }
 

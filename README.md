@@ -4,7 +4,39 @@ NFC + QR Review Kiosk with Square Integration + AI Review Drafts
 
 ## Overview
 
-Boutique GEO is a checkout kiosk system that captures customer ratings and generates AI-powered review drafts. Customers scan a QR code or tap an NFC tag to post reviews on Google/Yelp from their own phones.
+Boutique GEO is an NFC + QR review kiosk system designed for boutique retail stores that captures customer feedback at point-of-sale and helps customers post reviews to Google, Yelp, or Apple Maps.
+
+### What It Does
+
+The system solves a common retail problem: getting customers to leave online reviews. It works by:
+
+1. **Integrating with Square POS** — When a customer completes a purchase, the system automatically captures the transaction details
+2. **AI-generating review drafts** — Using OpenAI, it creates natural review text based on the star rating and actual items purchased
+3. **Enabling frictionless posting** — Customers scan a QR code on their phone and can copy the pre-written review to post on their preferred platform
+
+### How It Works (Customer Flow)
+
+1. Customer pays via Square POS
+2. iPad kiosk prompts them to rate their experience (1-5 stars)
+3. AI generates a contextual review draft based on their rating and purchased items
+4. Customer approves the review and scans a QR code
+5. Their phone shows the review text with one-tap copy and links to Google, Yelp, or Apple Maps
+6. Customer posts the review from their own account (no forced logins)
+
+### Three Components
+
+| Component | Description |
+|-----------|-------------|
+| **Backend** | Node.js/Express API with PostgreSQL, Square OAuth, and OpenAI integration |
+| **iPad App** | SwiftUI kiosk interface for in-store checkout displays |
+| **Landing Pages** | Mobile-optimized pages for customers to copy and post reviews |
+
+### Key Value Proposition
+
+- Reduces friction in getting reviews by pre-writing contextual drafts
+- Maintains authenticity since customers post from their own accounts
+- Integrates seamlessly with existing Square POS workflows
+- Tracks all interactions with audit logging
 
 ## Architecture
 

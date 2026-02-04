@@ -37,7 +37,7 @@ export class POSController {
   async oauthStart(req: Request, res: Response) {
     try {
       const provider = req.params.provider?.toUpperCase();
-      const { storePublicId } = req.query;
+      const { storePublicId, shop } = req.query;
 
       // Validate provider
       if (!provider || !providerRegistry.isSupported(provider)) {
@@ -53,6 +53,13 @@ export class POSController {
         });
       }
 
+      // Shopify requires the shop domain
+      if (provider === 'SHOPIFY' && (!shop || typeof shop !== 'string')) {
+        return res.status(400).json({
+          error: 'shop query parameter is required for Shopify (e.g., shop=mystore.myshopify.com)',
+        });
+      }
+
       // Verify store exists
       const store = await prisma.store.findUnique({
         where: { publicId: storePublicId },
@@ -64,9 +71,11 @@ export class POSController {
 
       const providerImpl = providerRegistry.get(provider as POSProvider);
       const redirectUri = `${config.APP_BASE_URL}/api/v1/pos/oauth/${provider}/callback`;
-      const oauthUrl = providerImpl.getOAuthUrl(storePublicId, redirectUri);
 
-      logger.info({ storePublicId, provider }, 'Redirecting to provider OAuth');
+      // Pass shop domain for Shopify
+      const oauthUrl = providerImpl.getOAuthUrl(storePublicId, redirectUri, { shop: shop as string });
+
+      logger.info({ storePublicId, provider, shop }, 'Redirecting to provider OAuth');
 
       return res.redirect(oauthUrl);
     } catch (error) {
