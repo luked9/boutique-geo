@@ -18,6 +18,21 @@ const configSchema = z.object({
   SQUARE_WEBHOOK_SIGNATURE_KEY: z.string().min(1),
   SQUARE_ENV: z.enum(['sandbox', 'production']).default('sandbox'),
 
+  // Shopify (optional - enable when needed)
+  SHOPIFY_CLIENT_ID: z.string().optional(),
+  SHOPIFY_CLIENT_SECRET: z.string().optional(),
+  SHOPIFY_WEBHOOK_SECRET: z.string().optional(),
+
+  // Lightspeed (optional - enable when needed)
+  LIGHTSPEED_CLIENT_ID: z.string().optional(),
+  LIGHTSPEED_CLIENT_SECRET: z.string().optional(),
+  LIGHTSPEED_WEBHOOK_SECRET: z.string().optional(),
+
+  // Toast (optional - enable when needed)
+  TOAST_CLIENT_ID: z.string().optional(),
+  TOAST_CLIENT_SECRET: z.string().optional(),
+  TOAST_WEBHOOK_SECRET: z.string().optional(),
+
   // AI
   AI_API_KEY: z.string().min(1),
   AI_API_BASE_URL: z.string().url().optional().default('https://api.openai.com/v1'),

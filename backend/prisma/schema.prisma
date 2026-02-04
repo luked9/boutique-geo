@@ -20,21 +20,32 @@ enum SessionStatus {
   POSTED_INTENT
 }
 
+enum POSProvider {
+  SQUARE
+  SHOPIFY
+  LIGHTSPEED
+  TOAST
+}
+
 model Store {
   id                     String          @id @default(uuid())
   publicId               String          @unique
   name                   String
   primaryReviewPlatform  ReviewPlatform  @default(GOOGLE)
   reviewDestinationUrl   String
+  lastApprovedSessionId  String?
+  createdAt              DateTime        @default(now())
+  updatedAt              DateTime        @updatedAt
+
+  // Legacy Square fields - DEPRECATED, use POSConnection instead
+  // Kept temporarily for migration
   squareMerchantId       String?
   squareLocationId       String?
   accessTokenEnc         String?
   refreshTokenEnc        String?
   tokenExpiresAt         DateTime?
-  lastApprovedSessionId  String?
-  createdAt              DateTime        @default(now())
-  updatedAt              DateTime        @updatedAt
 
+  posConnections POSConnection[]
   orders         Order[]
   reviewSessions ReviewSession[]
   auditEvents    AuditEvent[]
@@ -42,20 +53,76 @@ model Store {
   @@map("stores")
 }
 
+model POSConnection {
+  id               String      @id @default(uuid())
+  storeId          String
+  provider         POSProvider
+  merchantId       String?     // Provider's merchant/shop identifier
+  locationId       String?     // Provider's location identifier
+  accessTokenEnc   String?     // Encrypted OAuth access token
+  refreshTokenEnc  String?     // Encrypted OAuth refresh token
+  apiKeyEnc        String?     // For API key auth (e.g., Toast)
+  tokenExpiresAt   DateTime?
+  providerMetadata Json        @default("{}")
+  isActive         Boolean     @default(true)
+  lastSyncAt       DateTime?
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+
+  store         Store          @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  orders        Order[]
+  webhookEvents WebhookEvent[]
+
+  @@unique([storeId, provider])
+  @@index([provider])
+  @@index([merchantId])
+  @@index([locationId])
+  @@map("pos_connections")
+}
+
 model Order {
-  id            String   @id @default(uuid())
-  storeId       String
-  squareOrderId String   @unique
-  totalAmount   Int      // cents
-  currency      String   @default("USD")
-  lineItemsJson Json     // Array of {name, quantity, amount}
-  createdAt     DateTime @default(now())
+  id              String       @id @default(uuid())
+  storeId         String
+  posConnectionId String?
+  provider        POSProvider  @default(SQUARE)
+  externalOrderId String?      // Provider's order ID (nullable for migration, will be backfilled)
+  totalAmount     Int          // cents
+  currency        String       @default("USD")
+  lineItemsJson   Json         // Array of {name, quantity, amount}
+  rawPayload      Json?        // Provider's original response (for debugging)
+  createdAt       DateTime     @default(now())
+
+  // Legacy field - DEPRECATED, use externalOrderId instead
+  squareOrderId   String?      @unique
 
   store          Store           @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  posConnection  POSConnection?  @relation(fields: [posConnectionId], references: [id], onDelete: SetNull)
   reviewSessions ReviewSession[]
 
+  @@unique([provider, externalOrderId])
   @@index([storeId])
+  @@index([posConnectionId])
   @@map("orders")
+}
+
+model WebhookEvent {
+  id              String       @id @default(uuid())
+  posConnectionId String?
+  provider        POSProvider
+  eventId         String       // Provider's event ID (for idempotency)
+  eventType       String       // e.g., "payment.completed", "orders/paid"
+  payload         Json
+  status          String       @default("RECEIVED") // RECEIVED, PROCESSED, FAILED, SKIPPED
+  errorMessage    String?
+  processedAt     DateTime?
+  createdAt       DateTime     @default(now())
+
+  posConnection   POSConnection? @relation(fields: [posConnectionId], references: [id], onDelete: SetNull)
+
+  @@unique([provider, eventId])
+  @@index([provider, eventType])
+  @@index([status])
+  @@map("webhook_events")
 }
 
 model ReviewSession {

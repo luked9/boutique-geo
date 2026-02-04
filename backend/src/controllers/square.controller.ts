@@ -315,7 +315,9 @@ export class SquareController {
       const order = await prisma.order.create({
         data: {
           storeId: store.id,
-          squareOrderId: orderDetails.id,
+          provider: 'SQUARE',
+          externalOrderId: orderDetails.id,
+          squareOrderId: orderDetails.id, // Legacy field for backwards compatibility
           totalAmount: orderDetails.totalAmount,
           currency: orderDetails.currency,
           lineItemsJson: orderDetails.lineItems as unknown as Prisma.InputJsonValue,

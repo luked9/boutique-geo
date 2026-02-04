@@ -4,8 +4,12 @@ import { storesController } from '../controllers/stores.controller';
 import { kioskController } from '../controllers/kiosk.controller';
 import { squareController } from '../controllers/square.controller';
 import { landingController } from '../controllers/landing.controller';
+import posRoutes from './pos.routes';
 
 const router = Router();
+
+// Multi-provider POS routes
+router.use('/pos', posRoutes);
 
 // Health check
 router.get('/health', (req, res) => healthController.check(req, res));
