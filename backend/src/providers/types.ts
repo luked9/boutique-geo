@@ -99,9 +99,10 @@ export interface IPOSProvider {
    * Exchanges OAuth authorization code for access/refresh tokens
    * @param code - Authorization code from OAuth callback
    * @param redirectUri - Must match the original redirect URI
+   * @param options - Provider-specific options (e.g., shop domain for Shopify)
    * @returns Access token, optional refresh token, and expiration
    */
-  exchangeCodeForTokens(code: string, redirectUri: string): Promise<OAuthTokens>;
+  exchangeCodeForTokens(code: string, redirectUri: string, options?: { shop?: string }): Promise<OAuthTokens>;
 
   /**
    * Refreshes an expired or expiring access token

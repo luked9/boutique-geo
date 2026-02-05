@@ -50,7 +50,8 @@
       "Bash(xargs kill:*)",
       "Bash(railway status:*)",
       "Bash(railway login:*)",
-      "Bash(railway whoami:*)"
+      "Bash(railway whoami:*)",
+      "Bash(railway logs:*)"
     ]
   }
 }

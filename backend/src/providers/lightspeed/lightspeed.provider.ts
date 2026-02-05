@@ -39,7 +39,7 @@ export class LightspeedProvider extends BasePOSProvider {
     return url;
   }
 
-  async exchangeCodeForTokens(code: string, redirectUri: string): Promise<OAuthTokens> {
+  async exchangeCodeForTokens(code: string, redirectUri: string, _options?: { shop?: string }): Promise<OAuthTokens> {
     try {
       const response = await fetch(lightspeedConfig.tokenUrl, {
         method: 'POST',

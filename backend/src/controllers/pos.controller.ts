@@ -72,10 +72,13 @@ export class POSController {
       const providerImpl = providerRegistry.get(provider as POSProvider);
       const redirectUri = `${config.APP_BASE_URL}/api/v1/pos/oauth/${provider}/callback`;
 
-      // Pass shop domain for Shopify
-      const oauthUrl = providerImpl.getOAuthUrl(storePublicId, redirectUri, { shop: shop as string });
+      // For Shopify, include shop in the state so we can use it in the callback
+      const shopDomain = shop as string | undefined;
 
-      logger.info({ storePublicId, provider, shop }, 'Redirecting to provider OAuth');
+      // Pass shop domain for Shopify
+      const oauthUrl = providerImpl.getOAuthUrl(storePublicId, redirectUri, { shop: shopDomain });
+
+      logger.info({ storePublicId, provider, shop: shopDomain }, 'Redirecting to provider OAuth');
 
       return res.redirect(oauthUrl);
     } catch (error) {
@@ -112,14 +115,14 @@ export class POSController {
       }
 
       // Decode state
-      let stateData: OAuthState;
+      let stateData: OAuthState & { shopDomain?: string };
       try {
         stateData = JSON.parse(Buffer.from(state, 'base64').toString('utf-8'));
       } catch {
         return this.renderError(res, 'Invalid state parameter');
       }
 
-      const { storePublicId } = stateData;
+      const { storePublicId, shopDomain } = stateData;
 
       // Verify provider matches
       if (stateData.provider !== provider) {
@@ -138,8 +141,12 @@ export class POSController {
       const providerImpl = providerRegistry.get(provider as POSProvider);
       const redirectUri = `${config.APP_BASE_URL}/api/v1/pos/oauth/${provider}/callback`;
 
-      // Exchange code for tokens
-      const tokens = await providerImpl.exchangeCodeForTokens(code, redirectUri);
+      // For Shopify, also get shop from query params (Shopify sends it in callback)
+      const shopFromQuery = req.query.shop as string | undefined;
+      const shop = shopDomain || shopFromQuery;
+
+      // Exchange code for tokens (pass shop for Shopify)
+      const tokens = await providerImpl.exchangeCodeForTokens(code, redirectUri, { shop });
 
       // Get merchant info
       const merchantInfo = await providerImpl.getMerchantInfo(tokens.accessToken);

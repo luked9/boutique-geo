@@ -48,7 +48,7 @@ export class SquareProvider extends BasePOSProvider {
     return url;
   }
 
-  async exchangeCodeForTokens(code: string, _redirectUri: string): Promise<OAuthTokens> {
+  async exchangeCodeForTokens(code: string, _redirectUri: string, _options?: { shop?: string }): Promise<OAuthTokens> {
     try {
       const client = new Client({
         environment: this.environment,

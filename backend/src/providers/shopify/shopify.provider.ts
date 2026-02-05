@@ -44,8 +44,15 @@ export class ShopifyProvider extends BasePOSProvider {
       shopDomain = `${shopDomain}.myshopify.com`;
     }
 
-    // State contains our store reference for the callback
-    const state = this.encodeState(storePublicId);
+    // State contains our store reference AND shop domain for the callback
+    const state = Buffer.from(
+      JSON.stringify({
+        storePublicId,
+        provider: this.providerType,
+        timestamp: Date.now(),
+        shopDomain, // Include shop domain so we can use it in the callback
+      })
+    ).toString('base64');
 
     const params = new URLSearchParams({
       client_id: shopifyConfig.clientId,
@@ -65,14 +72,19 @@ export class ShopifyProvider extends BasePOSProvider {
    * Exchanges OAuth code for access token
    * Shopify tokens are permanent (no refresh token)
    */
-  async exchangeCodeForTokens(code: string, redirectUri: string): Promise<OAuthTokens> {
+  async exchangeCodeForTokens(code: string, _redirectUri: string, options?: { shop?: string }): Promise<OAuthTokens> {
     try {
-      // Extract shop domain from the redirect URI or state
-      // In practice, this would come from the callback URL
-      const shopDomain = this.extractShopDomain(redirectUri);
+      // Get shop domain from options (passed from state or query params)
+      let shopDomain = options?.shop;
 
       if (!shopDomain) {
         throw new Error('Shop domain is required for Shopify OAuth');
+      }
+
+      // Normalize shop domain
+      shopDomain = shopDomain.replace(/^https?:\/\//, '').replace(/\/$/, '');
+      if (!shopDomain.includes('.myshopify.com')) {
+        shopDomain = `${shopDomain}.myshopify.com`;
       }
 
       const response = await fetch(
