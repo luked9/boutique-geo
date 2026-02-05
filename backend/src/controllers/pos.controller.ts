@@ -181,6 +181,13 @@ export class POSController {
         });
       }
 
+      // Register webhooks for Shopify
+      if (provider === 'SHOPIFY' && shopForMerchantInfo) {
+        const webhookUrl = `${config.APP_BASE_URL}/api/v1/pos/webhook/SHOPIFY`;
+        const { shopifyProvider } = await import('../providers/shopify/shopify.provider');
+        await shopifyProvider.registerWebhooks(tokens.accessToken, shopForMerchantInfo, webhookUrl);
+      }
+
       logger.info(
         { storeId: store.id, provider, merchantId: merchantInfo.merchantId, connectionId: connection.id },
         'POS OAuth completed successfully'

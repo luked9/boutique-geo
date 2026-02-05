@@ -378,6 +378,58 @@ export class ShopifyProvider extends BasePOSProvider {
       'Shop domain must be stored in POSConnection.providerMetadata.shopDomain'
     );
   }
+
+  /**
+   * Register webhooks for order events
+   */
+  async registerWebhooks(accessToken: string, shopDomain: string, webhookUrl: string): Promise<void> {
+    // Normalize shop domain
+    let shop = shopDomain.replace(/^https?:\/\//, '').replace(/\/$/, '');
+    if (!shop.includes('.myshopify.com')) {
+      shop = `${shop}.myshopify.com`;
+    }
+
+    const webhookTopics = [
+      'orders/paid',      // When an order is paid
+      'orders/fulfilled', // When an order is fulfilled
+    ];
+
+    for (const topic of webhookTopics) {
+      try {
+        const response = await fetch(
+          `https://${shop}/admin/api/${shopifyConfig.apiVersion}/webhooks.json`,
+          {
+            method: 'POST',
+            headers: {
+              'X-Shopify-Access-Token': accessToken,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              webhook: {
+                topic,
+                address: webhookUrl,
+                format: 'json',
+              },
+            }),
+          }
+        );
+
+        if (response.ok) {
+          this.logInfo('Registered Shopify webhook', { topic, shop });
+        } else {
+          const errorText = await response.text();
+          // 422 often means webhook already exists, which is fine
+          if (response.status === 422) {
+            this.logInfo('Webhook already exists', { topic, shop });
+          } else {
+            this.logWarn('Failed to register webhook', { topic, shop, status: response.status, error: errorText });
+          }
+        }
+      } catch (error) {
+        this.logError('Error registering webhook', error, { topic, shop });
+      }
+    }
+  }
 }
 
 // Create and export singleton instance
