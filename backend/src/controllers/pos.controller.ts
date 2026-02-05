@@ -149,7 +149,8 @@ export class POSController {
       const tokens = await providerImpl.exchangeCodeForTokens(code, redirectUri, { shop });
 
       // Get shop domain from tokens additionalData if available (Shopify returns it)
-      const shopForMerchantInfo = tokens.additionalData?.shopDomain || shop;
+      const additionalData = tokens.additionalData as { shopDomain?: string } | undefined;
+      const shopForMerchantInfo = additionalData?.shopDomain || shop;
 
       // Get merchant info (pass shop for Shopify)
       const merchantInfo = await providerImpl.getMerchantInfo(tokens.accessToken, { shop: shopForMerchantInfo });
