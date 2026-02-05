@@ -12,8 +12,20 @@ import { landingController } from './controllers/landing.controller';
 
 const app = express();
 
-// Security middleware
-app.use(helmet());
+// Security middleware - configure for Shopify embedded apps
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "https://cdn.shopify.com"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://cdn.shopify.com"],
+      imgSrc: ["'self'", "data:", "https:"],
+      connectSrc: ["'self'", "https:"],
+      frameSrc: ["'self'", "https://*.myshopify.com"],
+      frameAncestors: ["'self'", "https://*.myshopify.com", "https://admin.shopify.com"],
+    },
+  },
+}));
 
 // CORS configuration
 app.use(cors({
@@ -44,6 +56,64 @@ app.use('/static', express.static(path.join(__dirname, 'static')));
 // Landing page routes (NFC tap and QR code)
 app.get('/tap/:storePublicId', (req, res) => landingController.tapLanding(req, res));
 app.get('/r/:sessionPublicId', (req, res) => landingController.sessionLanding(req, res));
+
+// Shopify app home page (for embedded app view)
+app.get('/', async (req, res) => {
+  const { shop, host, embedded } = req.query;
+  const shopifyClientId = process.env.SHOPIFY_CLIENT_ID || '';
+
+  // If this is a Shopify embedded request
+  if (shop && typeof shop === 'string') {
+    // Check if we have a connection for this shop - need to find by shop domain
+    // For now, show success page with setup instructions
+    const escapedShop = shop.replace(/[<>]/g, '');
+
+    res.send(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Boutique GEO - Shopify App</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <style>
+          body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; padding: 40px; max-width: 600px; margin: 0 auto; }
+          h1 { color: #333; }
+          p { color: #666; line-height: 1.6; }
+          .success { color: #008060; font-weight: bold; }
+          .card { background: #f9fafb; border-radius: 8px; padding: 20px; margin: 20px 0; }
+          code { background: #e5e7eb; padding: 2px 6px; border-radius: 4px; font-size: 14px; }
+        </style>
+      </head>
+      <body>
+        <h1>✅ Boutique GEO Installed</h1>
+        <p class="success">App installed on ${escapedShop}</p>
+
+        <div class="card">
+          <h3>Next Steps</h3>
+          <p>To complete the setup and connect your store to Boutique GEO's review system:</p>
+          <ol>
+            <li>Create a store in our system with your Shopify shop domain</li>
+            <li>Configure webhooks in Shopify to send order events to our endpoint</li>
+          </ol>
+        </div>
+
+        <p><small>Boutique GEO helps you collect more reviews by prompting customers after their purchase.</small></p>
+      </body>
+      </html>
+    `);
+  } else {
+    // Regular homepage
+    res.send(`
+      <!DOCTYPE html>
+      <html>
+      <head><title>Boutique GEO API</title></head>
+      <body style="font-family: sans-serif; padding: 40px;">
+        <h1>Boutique GEO API</h1>
+        <p>API is running. Use /api/v1 for API endpoints.</p>
+      </body>
+      </html>
+    `);
+  }
+});
 
 // Mount API routes
 app.use('/api/v1', router);
