@@ -147,11 +147,18 @@ export class ShopifyProvider extends BasePOSProvider {
   /**
    * Fetches shop information from Shopify
    */
-  async getMerchantInfo(accessToken: string): Promise<MerchantInfo> {
+  async getMerchantInfo(accessToken: string, options?: { shop?: string }): Promise<MerchantInfo> {
     try {
-      // Extract shop domain from the token metadata or use a stored value
-      // In practice, you'd store the shop domain with the connection
-      const shopDomain = this.extractShopFromToken(accessToken);
+      // Get shop domain from options
+      let shopDomain = options?.shop;
+      if (!shopDomain) {
+        throw new Error('Shop domain is required for Shopify API calls');
+      }
+      // Normalize shop domain
+      shopDomain = shopDomain.replace(/^https?:\/\//, '').replace(/\/$/, '');
+      if (!shopDomain.includes('.myshopify.com')) {
+        shopDomain = `${shopDomain}.myshopify.com`;
+      }
 
       const response = await fetch(
         `https://${shopDomain}/admin/api/${shopifyConfig.apiVersion}/shop.json`,

@@ -142,7 +142,7 @@ export class LightspeedProvider extends BasePOSProvider {
     }
   }
 
-  async getMerchantInfo(accessToken: string): Promise<MerchantInfo> {
+  async getMerchantInfo(accessToken: string, _options?: { shop?: string }): Promise<MerchantInfo> {
     try {
       // Get account info
       const response = await fetch(`${lightspeedConfig.apiBaseUrl}/Account`, {

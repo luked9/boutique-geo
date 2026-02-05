@@ -77,7 +77,7 @@ export abstract class BasePOSProvider implements IPOSProvider {
   abstract getOAuthUrl(storePublicId: string, redirectUri: string, options?: { shop?: string }): string;
   abstract exchangeCodeForTokens(code: string, redirectUri: string, options?: { shop?: string }): Promise<OAuthTokens>;
   abstract refreshTokens(refreshToken: string): Promise<OAuthTokens>;
-  abstract getMerchantInfo(accessToken: string): Promise<MerchantInfo>;
+  abstract getMerchantInfo(accessToken: string, options?: { shop?: string }): Promise<MerchantInfo>;
   abstract getOrder(accessToken: string, orderId: string): Promise<NormalizedOrder>;
   abstract validateWebhook(
     rawBody: string,

@@ -126,7 +126,7 @@ export class SquareProvider extends BasePOSProvider {
     }
   }
 
-  async getMerchantInfo(accessToken: string): Promise<MerchantInfo> {
+  async getMerchantInfo(accessToken: string, _options?: { shop?: string }): Promise<MerchantInfo> {
     try {
       const client = new Client({
         environment: this.environment,

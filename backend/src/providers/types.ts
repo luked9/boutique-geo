@@ -114,9 +114,10 @@ export interface IPOSProvider {
   /**
    * Fetches merchant/business information
    * @param accessToken - Valid access token
+   * @param options - Provider-specific options (e.g., shop domain for Shopify)
    * @returns Merchant ID, business name, and optionally locations
    */
-  getMerchantInfo(accessToken: string): Promise<MerchantInfo>;
+  getMerchantInfo(accessToken: string, options?: { shop?: string }): Promise<MerchantInfo>;
 
   /**
    * Fetches order details from the provider

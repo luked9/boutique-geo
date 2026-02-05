@@ -148,8 +148,11 @@ export class POSController {
       // Exchange code for tokens (pass shop for Shopify)
       const tokens = await providerImpl.exchangeCodeForTokens(code, redirectUri, { shop });
 
-      // Get merchant info
-      const merchantInfo = await providerImpl.getMerchantInfo(tokens.accessToken);
+      // Get shop domain from tokens additionalData if available (Shopify returns it)
+      const shopForMerchantInfo = tokens.additionalData?.shopDomain || shop;
+
+      // Get merchant info (pass shop for Shopify)
+      const merchantInfo = await providerImpl.getMerchantInfo(tokens.accessToken, { shop: shopForMerchantInfo });
 
       // Create/update POS connection
       const connection = await posConnectionService.upsertConnection(
