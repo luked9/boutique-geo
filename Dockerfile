@@ -32,12 +32,12 @@ RUN npx prisma generate && npm run build
 # Verify backend built successfully
 RUN test -f dist/index.js || (echo "ERROR: Backend build failed - dist/index.js not found" && exit 1)
 
-# Stage 3: Production
-FROM node:20-alpine
+# Stage 3: Production — use Debian slim (not Alpine) for Prisma + native module compatibility
+FROM node:20-slim
 WORKDIR /app
 
-# Install OpenSSL — required by Prisma schema engine for db push at startup
-RUN apk add --no-cache openssl
+# Install OpenSSL — required by Prisma engine binaries
+RUN apt-get update -y && apt-get install -y --no-install-recommends openssl ca-certificates && rm -rf /var/lib/apt/lists/*
 
 # Copy backend package files and install production deps
 COPY backend/package*.json ./
