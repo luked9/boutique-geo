@@ -32,8 +32,8 @@ export class SquareProvider extends BasePOSProvider {
     this.logInfo('SquareProvider initialized', { environment: squareConfig.environment });
   }
 
-  getOAuthUrl(storePublicId: string, redirectUri: string, _options?: { shop?: string }): string {
-    const state = this.encodeState(storePublicId);
+  getOAuthUrl(storePublicId: string, redirectUri: string, options?: { shop?: string; frontendRedirectUrl?: string }): string {
+    const state = this.encodeState(storePublicId, options?.frontendRedirectUrl ? { frontendRedirectUrl: options.frontendRedirectUrl } : undefined);
 
     const params = new URLSearchParams({
       client_id: squareConfig.appId,

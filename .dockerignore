@@ -1,0 +1,10 @@
+node_modules
+.git
+.env
+.env.local
+.DS_Store
+dist
+coverage
+*.log
+ipad-app
+.claude

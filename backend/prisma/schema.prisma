@@ -27,13 +27,28 @@ enum POSProvider {
   TOAST
 }
 
+model Employee {
+  id          String   @id @default(uuid())
+  firebaseUid String   @unique
+  email       String   @unique
+  name        String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  stores      Store[]  @relation("CreatedBy")
+
+  @@map("employees")
+}
+
 model Store {
   id                     String          @id @default(uuid())
   publicId               String          @unique
   name                   String
   primaryReviewPlatform  ReviewPlatform  @default(GOOGLE)
   reviewDestinationUrl   String
+  googleMapsUrl          String?
   lastApprovedSessionId  String?
+  createdByEmployeeId    String?
   createdAt              DateTime        @default(now())
   updatedAt              DateTime        @updatedAt
 
@@ -45,11 +60,13 @@ model Store {
   refreshTokenEnc        String?
   tokenExpiresAt         DateTime?
 
-  posConnections POSConnection[]
-  orders         Order[]
-  reviewSessions ReviewSession[]
-  auditEvents    AuditEvent[]
+  createdByEmployee Employee?      @relation("CreatedBy", fields: [createdByEmployeeId], references: [id], onDelete: SetNull)
+  posConnections    POSConnection[]
+  orders            Order[]
+  reviewSessions    ReviewSession[]
+  auditEvents       AuditEvent[]
 
+  @@index([createdByEmployeeId])
   @@map("stores")
 }
 

@@ -34,3 +34,12 @@ export type PlatformClickDto = z.infer<typeof PlatformClickDtoSchema>;
 // Session Status
 export const SessionStatusSchema = z.enum(['PENDING', 'DECLINED', 'APPROVED', 'POSTED_INTENT']);
 export type SessionStatus = z.infer<typeof SessionStatusSchema>;
+
+// Onboarding Store DTO
+export const CreateOnboardingStoreDtoSchema = z.object({
+  name: z.string().min(1).max(255),
+  posProvider: z.enum(['SHOPIFY', 'SQUARE', 'LIGHTSPEED']),
+  googleMapsUrl: z.string().url(),
+  shopDomain: z.string().optional(),
+});
+export type CreateOnboardingStoreDto = z.infer<typeof CreateOnboardingStoreDtoSchema>;

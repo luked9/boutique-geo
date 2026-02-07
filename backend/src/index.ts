@@ -10,17 +10,22 @@ import { errorHandler } from './middleware/errorHandler';
 import router from './routes';
 import { landingController } from './controllers/landing.controller';
 
+// Initialize Firebase Admin at startup (if configured)
+import { getFirebaseAdmin } from './lib/firebase';
+getFirebaseAdmin();
+
 const app = express();
 
-// Security middleware - configure for Shopify embedded apps
+// Security middleware - configure for Shopify embedded apps + Firebase Auth
 app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
       scriptSrc: ["'self'", "'unsafe-inline'", "https://cdn.shopify.com"],
-      styleSrc: ["'self'", "'unsafe-inline'", "https://cdn.shopify.com"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://cdn.shopify.com", "https://fonts.googleapis.com"],
       imgSrc: ["'self'", "data:", "https:"],
-      connectSrc: ["'self'", "https:"],
+      connectSrc: ["'self'", "https:", "https://identitytoolkit.googleapis.com", "https://securetoken.googleapis.com"],
+      fontSrc: ["'self'", "https://fonts.gstatic.com"],
       frameSrc: ["'self'", "https://*.myshopify.com"],
       frameAncestors: ["'self'", "https://*.myshopify.com", "https://admin.shopify.com"],
     },
@@ -28,10 +33,14 @@ app.use(helmet({
 }));
 
 // CORS configuration
+const allowedOrigins: string[] = [];
+if (config.NODE_ENV === 'production') {
+  allowedOrigins.push(config.APP_BASE_URL);
+} else {
+  allowedOrigins.push('http://localhost:5173', 'http://localhost:3000');
+}
 app.use(cors({
-  origin: config.NODE_ENV === 'production'
-    ? [] // Configure allowed origins in production
-    : '*',
+  origin: config.NODE_ENV === 'production' ? allowedOrigins : '*',
   credentials: true,
 }));
 
@@ -40,7 +49,7 @@ app.use(express.json({
   limit: '10mb',
   verify: (req: any, _res, buf) => {
     // Capture raw body for webhook signature verification
-    if (req.originalUrl?.includes('/square/webhook')) {
+    if (req.originalUrl?.includes('/webhook')) {
       req.rawBody = buf.toString('utf8');
     }
   }
@@ -59,13 +68,10 @@ app.get('/r/:sessionPublicId', (req, res) => landingController.sessionLanding(re
 
 // Shopify app home page (for embedded app view)
 app.get('/', async (req, res) => {
-  const { shop, host, embedded } = req.query;
-  const shopifyClientId = process.env.SHOPIFY_CLIENT_ID || '';
+  const { shop } = req.query;
 
-  // If this is a Shopify embedded request
+  // If this is a Shopify embedded request, serve the Shopify page
   if (shop && typeof shop === 'string') {
-    // Check if we have a connection for this shop - need to find by shop domain
-    // For now, show success page with setup instructions
     const escapedShop = shop.replace(/[<>]/g, '');
 
     res.send(`
@@ -80,13 +86,11 @@ app.get('/', async (req, res) => {
           p { color: #666; line-height: 1.6; }
           .success { color: #008060; font-weight: bold; }
           .card { background: #f9fafb; border-radius: 8px; padding: 20px; margin: 20px 0; }
-          code { background: #e5e7eb; padding: 2px 6px; border-radius: 4px; font-size: 14px; }
         </style>
       </head>
       <body>
-        <h1>✅ Boutique GEO Installed</h1>
+        <h1>Boutique GEO Installed</h1>
         <p class="success">App installed on ${escapedShop}</p>
-
         <div class="card">
           <h3>Next Steps</h3>
           <p>To complete the setup and connect your store to Boutique GEO's review system:</p>
@@ -95,13 +99,19 @@ app.get('/', async (req, res) => {
             <li>Configure webhooks in Shopify to send order events to our endpoint</li>
           </ol>
         </div>
-
         <p><small>Boutique GEO helps you collect more reviews by prompting customers after their purchase.</small></p>
       </body>
       </html>
     `);
-  } else {
-    // Regular homepage
+    return;
+  }
+
+  // In production, serve the React frontend
+  const frontendPath = path.join(__dirname, 'frontend', 'index.html');
+  try {
+    res.sendFile(frontendPath);
+  } catch {
+    // Frontend not built or not found — serve API info
     res.send(`
       <!DOCTYPE html>
       <html>
@@ -118,7 +128,32 @@ app.get('/', async (req, res) => {
 // Mount API routes
 app.use('/api/v1', router);
 
-// 404 handler
+// Serve React frontend static assets (production)
+const frontendDir = path.join(__dirname, 'frontend');
+app.use(express.static(frontendDir));
+
+// SPA fallback: serve index.html for any unmatched route (React Router handles it)
+app.use((req, res, next) => {
+  // Don't intercept API routes, landing pages, or static assets
+  if (
+    req.path.startsWith('/api/') ||
+    req.path.startsWith('/tap/') ||
+    req.path.startsWith('/r/') ||
+    req.path.startsWith('/static/')
+  ) {
+    return next();
+  }
+
+  const indexPath = path.join(frontendDir, 'index.html');
+  res.sendFile(indexPath, (err) => {
+    if (err) {
+      // Frontend not available, return 404
+      next();
+    }
+  });
+});
+
+// 404 handler (for API routes that don't match)
 app.use((req, res) => {
   res.status(404).json({
     error: 'Not found',

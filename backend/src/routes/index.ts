@@ -5,11 +5,15 @@ import { kioskController } from '../controllers/kiosk.controller';
 import { squareController } from '../controllers/square.controller';
 import { landingController } from '../controllers/landing.controller';
 import posRoutes from './pos.routes';
+import onboardingRoutes from './onboarding.routes';
 
 const router = Router();
 
 // Multi-provider POS routes
 router.use('/pos', posRoutes);
+
+// Employee onboarding routes (Firebase auth protected)
+router.use('/onboarding', onboardingRoutes);
 
 // Health check
 router.get('/health', (req, res) => healthController.check(req, res));

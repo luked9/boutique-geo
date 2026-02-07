@@ -38,6 +38,11 @@ const configSchema = z.object({
   AI_API_BASE_URL: z.string().url().optional().default('https://api.openai.com/v1'),
   AI_MODEL: z.string().default('gpt-4o-mini'),
 
+  // Firebase Admin (optional - auth disabled if not set)
+  FIREBASE_PROJECT_ID: z.string().optional(),
+  FIREBASE_CLIENT_EMAIL: z.string().optional(),
+  FIREBASE_PRIVATE_KEY: z.string().optional(),
+
   // App
   APP_BASE_URL: z.string().url().optional().default('http://localhost:3000'),
 });

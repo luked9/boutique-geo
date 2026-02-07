@@ -115,7 +115,7 @@ export class POSController {
       }
 
       // Decode state
-      let stateData: OAuthState & { shopDomain?: string };
+      let stateData: OAuthState & { shopDomain?: string; frontendRedirectUrl?: string };
       try {
         stateData = JSON.parse(Buffer.from(state, 'base64').toString('utf-8'));
       } catch {
@@ -193,9 +193,34 @@ export class POSController {
         'POS OAuth completed successfully'
       );
 
+      // If the OAuth was initiated from the frontend, redirect back
+      if (stateData.frontendRedirectUrl) {
+        const redirectUrl = new URL(stateData.frontendRedirectUrl);
+        redirectUrl.searchParams.set('status', 'success');
+        redirectUrl.searchParams.set('provider', provider);
+        return res.redirect(redirectUrl.toString());
+      }
+
       return this.renderSuccess(res, provider, merchantInfo.businessName);
     } catch (error) {
       logger.error({ error }, 'OAuth callback failed');
+
+      // Try to redirect errors back to frontend if state contains frontendRedirectUrl
+      try {
+        const rawState = req.query.state;
+        if (rawState && typeof rawState === 'string') {
+          const stateObj = JSON.parse(Buffer.from(rawState, 'base64').toString('utf-8'));
+          if (stateObj.frontendRedirectUrl) {
+            const redirectUrl = new URL(stateObj.frontendRedirectUrl);
+            redirectUrl.searchParams.set('status', 'error');
+            redirectUrl.searchParams.set('message', 'Failed to complete authorization. Please try again.');
+            return res.redirect(redirectUrl.toString());
+          }
+        }
+      } catch {
+        // State parsing failed, fall through to HTML error
+      }
+
       return this.renderError(res, 'Failed to complete authorization. Please try again.');
     }
   }

@@ -56,12 +56,13 @@ export abstract class BasePOSProvider implements IPOSProvider {
   /**
    * Encode OAuth state parameter
    */
-  protected encodeState(storePublicId: string): string {
+  protected encodeState(storePublicId: string, extra?: Record<string, unknown>): string {
     return Buffer.from(
       JSON.stringify({
         storePublicId,
         provider: this.providerType,
         timestamp: Date.now(),
+        ...extra,
       })
     ).toString('base64');
   }
@@ -74,7 +75,7 @@ export abstract class BasePOSProvider implements IPOSProvider {
   }
 
   // Abstract methods that must be implemented by each provider
-  abstract getOAuthUrl(storePublicId: string, redirectUri: string, options?: { shop?: string }): string;
+  abstract getOAuthUrl(storePublicId: string, redirectUri: string, options?: { shop?: string; frontendRedirectUrl?: string }): string;
   abstract exchangeCodeForTokens(code: string, redirectUri: string, options?: { shop?: string }): Promise<OAuthTokens>;
   abstract refreshTokens(refreshToken: string): Promise<OAuthTokens>;
   abstract getMerchantInfo(accessToken: string, options?: { shop?: string }): Promise<MerchantInfo>;

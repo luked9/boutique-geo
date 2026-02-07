@@ -78,6 +78,15 @@ export interface OAuthState {
   storePublicId: string;
   provider: POSProvider;
   timestamp: number;
+  frontendRedirectUrl?: string;
+}
+
+/**
+ * Options for OAuth URL generation
+ */
+export interface OAuthUrlOptions {
+  shop?: string;
+  frontendRedirectUrl?: string;
 }
 
 /**
@@ -93,7 +102,7 @@ export interface IPOSProvider {
    * @param options - Provider-specific options (e.g., shop domain for Shopify)
    * @returns Full authorization URL to redirect user to
    */
-  getOAuthUrl(storePublicId: string, redirectUri: string, options?: { shop?: string }): string;
+  getOAuthUrl(storePublicId: string, redirectUri: string, options?: OAuthUrlOptions): string;
 
   /**
    * Exchanges OAuth authorization code for access/refresh tokens

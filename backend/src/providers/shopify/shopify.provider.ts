@@ -32,7 +32,7 @@ export class ShopifyProvider extends BasePOSProvider {
    * Generates Shopify OAuth URL
    * Shopify requires the shop domain to construct the correct OAuth URL
    */
-  getOAuthUrl(storePublicId: string, redirectUri: string, options?: { shop?: string }): string {
+  getOAuthUrl(storePublicId: string, redirectUri: string, options?: { shop?: string; frontendRedirectUrl?: string }): string {
     const shop = options?.shop;
     if (!shop) {
       throw new Error('Shop domain is required for Shopify OAuth');
@@ -45,14 +45,16 @@ export class ShopifyProvider extends BasePOSProvider {
     }
 
     // State contains our store reference AND shop domain for the callback
-    const state = Buffer.from(
-      JSON.stringify({
-        storePublicId,
-        provider: this.providerType,
-        timestamp: Date.now(),
-        shopDomain, // Include shop domain so we can use it in the callback
-      })
-    ).toString('base64');
+    const stateObj: Record<string, unknown> = {
+      storePublicId,
+      provider: this.providerType,
+      timestamp: Date.now(),
+      shopDomain,
+    };
+    if (options?.frontendRedirectUrl) {
+      stateObj.frontendRedirectUrl = options.frontendRedirectUrl;
+    }
+    const state = Buffer.from(JSON.stringify(stateObj)).toString('base64');
 
     const params = new URLSearchParams({
       client_id: shopifyConfig.clientId,
