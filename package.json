@@ -1,0 +1,12 @@
+{
+  "name": "boutique-geo",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "cd backend && npm ci && npm run build && cd ../frontend && npm ci && npm run build && cp -r dist ../backend/dist/frontend",
+    "start": "cd backend && npx prisma db push --accept-data-loss && node dist/index.js"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}
