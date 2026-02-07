@@ -108,21 +108,21 @@ app.get('/', async (req, res) => {
 
   // In production, serve the React frontend
   const frontendPath = path.join(__dirname, 'frontend', 'index.html');
-  try {
-    res.sendFile(frontendPath);
-  } catch {
-    // Frontend not built or not found — serve API info
-    res.send(`
-      <!DOCTYPE html>
-      <html>
-      <head><title>Boutique GEO API</title></head>
-      <body style="font-family: sans-serif; padding: 40px;">
-        <h1>Boutique GEO API</h1>
-        <p>API is running. Use /api/v1 for API endpoints.</p>
-      </body>
-      </html>
-    `);
-  }
+  res.sendFile(frontendPath, (err) => {
+    if (err) {
+      // Frontend not built or not found — serve API info
+      res.send(`
+        <!DOCTYPE html>
+        <html>
+        <head><title>Boutique GEO API</title></head>
+        <body style="font-family: sans-serif; padding: 40px;">
+          <h1>Boutique GEO API</h1>
+          <p>API is running. Use /api/v1 for API endpoints.</p>
+        </body>
+        </html>
+      `);
+    }
+  });
 });
 
 // Mount API routes
