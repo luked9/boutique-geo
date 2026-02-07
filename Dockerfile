@@ -16,7 +16,7 @@ ENV VITE_FIREBASE_AUTH_DOMAIN=$VITE_FIREBASE_AUTH_DOMAIN
 ENV VITE_FIREBASE_PROJECT_ID=$VITE_FIREBASE_PROJECT_ID
 ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
 
-RUN npm run build && echo "--- Frontend build output ---" && ls -la dist/ && echo "--- index.html check ---" && cat dist/index.html | head -5
+RUN npm run build
 
 # Stage 2: Build backend
 FROM node:20-alpine AS backend-build
@@ -40,9 +40,6 @@ COPY --from=backend-build /app/backend/dist ./dist
 
 # Copy frontend build output into backend's static directory
 COPY --from=frontend-build /app/frontend/dist ./dist/frontend
-
-# Verify frontend files are present
-RUN echo "--- Production dist contents ---" && ls -la dist/ && echo "--- Frontend dir ---" && ls -la dist/frontend/ && echo "--- Verify index.html ---" && test -f dist/frontend/index.html && echo "OK: index.html exists" || (echo "FAIL: index.html missing" && exit 1)
 
 EXPOSE 3000
 
