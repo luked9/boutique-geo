@@ -249,7 +249,7 @@ export class SquareController {
   ): boolean {
     try {
       const payload = url + body;
-      const hmac = crypto.createHmac('sha256', config.SQUARE_WEBHOOK_SIGNATURE_KEY);
+      const hmac = crypto.createHmac('sha256', config.SQUARE_WEBHOOK_SIGNATURE_KEY || '');
       hmac.update(payload);
       const expectedSignature = hmac.digest('base64');
 

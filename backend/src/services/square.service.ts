@@ -47,8 +47,8 @@ class SquareService {
   private readonly baseUrl: string;
 
   constructor() {
-    this.appId = config.SQUARE_APP_ID;
-    this.appSecret = config.SQUARE_APP_SECRET;
+    this.appId = config.SQUARE_APP_ID || '';
+    this.appSecret = config.SQUARE_APP_SECRET || '';
     this.environment =
       config.SQUARE_ENV === 'production' ? Environment.Production : Environment.Sandbox;
     this.baseUrl =
@@ -56,7 +56,11 @@ class SquareService {
         ? 'https://connect.squareup.com'
         : 'https://connect.squareupsandbox.com';
 
-    logger.info({ environment: config.SQUARE_ENV }, 'SquareService initialized');
+    if (this.appId) {
+      logger.info({ environment: config.SQUARE_ENV }, 'SquareService initialized');
+    } else {
+      logger.warn('Square credentials not configured - Square features disabled');
+    }
   }
 
   /**

@@ -8,13 +8,15 @@ export { BasePOSProvider } from './base.provider';
 export { providerRegistry } from './registry';
 
 // Import and register providers
-import { squareProvider } from './square';
+import { squareProvider, isSquareConfigured } from './square';
 import { shopifyProvider, isShopifyConfigured } from './shopify';
 import { lightspeedProvider, isLightspeedConfigured } from './lightspeed';
 import { providerRegistry } from './registry';
 
-// Register Square provider (always available)
-providerRegistry.register(squareProvider);
+// Register Square provider (only if configured)
+if (isSquareConfigured()) {
+  providerRegistry.register(squareProvider);
+}
 
 // Register Shopify provider (only if configured)
 if (isShopifyConfigured()) {
@@ -27,6 +29,6 @@ if (isLightspeedConfigured()) {
 }
 
 // Export individual providers
-export { squareProvider } from './square';
+export { squareProvider, isSquareConfigured } from './square';
 export { shopifyProvider, isShopifyConfigured } from './shopify';
 export { lightspeedProvider, isLightspeedConfigured } from './lightspeed';

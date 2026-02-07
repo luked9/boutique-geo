@@ -13,7 +13,7 @@ import { config } from '../config';
 function getWebhookSecret(provider: POSProvider): string {
   switch (provider) {
     case 'SQUARE':
-      return config.SQUARE_WEBHOOK_SIGNATURE_KEY;
+      return config.SQUARE_WEBHOOK_SIGNATURE_KEY || '';
     case 'SHOPIFY':
       // Will be added when Shopify is configured
       return (config as any).SHOPIFY_WEBHOOK_SECRET || '';

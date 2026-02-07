@@ -13,18 +13,21 @@ interface LineItem {
 }
 
 export class ReviewGenService {
-  private openai: OpenAI;
+  private openai: OpenAI | null = null;
 
   constructor() {
-    this.openai = new OpenAI({
-      apiKey: config.AI_API_KEY,
-      baseURL: config.AI_API_BASE_URL,
-    });
-
-    logger.info(
-      { model: config.AI_MODEL, baseURL: config.AI_API_BASE_URL },
-      'ReviewGenService initialized'
-    );
+    if (config.AI_API_KEY) {
+      this.openai = new OpenAI({
+        apiKey: config.AI_API_KEY,
+        baseURL: config.AI_API_BASE_URL,
+      });
+      logger.info(
+        { model: config.AI_MODEL, baseURL: config.AI_API_BASE_URL },
+        'ReviewGenService initialized'
+      );
+    } else {
+      logger.warn('AI_API_KEY not set - review generation will use fallback templates');
+    }
   }
 
   /**
@@ -100,6 +103,11 @@ export class ReviewGenService {
     rating: number,
     items: LineItem[]
   ): Promise<string> {
+    if (!this.openai) {
+      logger.warn('AI not configured, using fallback review template');
+      return this.generateFallbackReview(storeName, rating, items);
+    }
+
     try {
       const { tone, style, length } = this.getToneForRating(rating);
 

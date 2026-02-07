@@ -1,2 +1,2 @@
 export { SquareProvider, squareProvider } from './square.provider';
-export { squareConfig } from './square.config';
+export { squareConfig, isSquareConfigured } from './square.config';

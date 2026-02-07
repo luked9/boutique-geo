@@ -12,10 +12,10 @@ const configSchema = z.object({
   // Security
   ENCRYPTION_KEY: z.string().length(64, 'ENCRYPTION_KEY must be 64 characters (32 bytes hex)'),
 
-  // Square
-  SQUARE_APP_ID: z.string().min(1),
-  SQUARE_APP_SECRET: z.string().min(1),
-  SQUARE_WEBHOOK_SIGNATURE_KEY: z.string().min(1),
+  // Square (optional - provider only registers if configured)
+  SQUARE_APP_ID: z.string().optional(),
+  SQUARE_APP_SECRET: z.string().optional(),
+  SQUARE_WEBHOOK_SIGNATURE_KEY: z.string().optional(),
   SQUARE_ENV: z.enum(['sandbox', 'production']).default('sandbox'),
 
   // Shopify (optional - enable when needed)
@@ -33,8 +33,8 @@ const configSchema = z.object({
   TOAST_CLIENT_SECRET: z.string().optional(),
   TOAST_WEBHOOK_SECRET: z.string().optional(),
 
-  // AI
-  AI_API_KEY: z.string().min(1),
+  // AI (optional - review generation disabled if not set)
+  AI_API_KEY: z.string().optional(),
   AI_API_BASE_URL: z.string().url().optional().default('https://api.openai.com/v1'),
   AI_MODEL: z.string().default('gpt-4o-mini'),
 

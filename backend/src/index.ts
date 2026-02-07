@@ -109,7 +109,7 @@ app.get('/', async (req, res) => {
   // In production, serve the React frontend
   const frontendPath = path.join(__dirname, 'frontend', 'index.html');
   res.sendFile(frontendPath, (err) => {
-    if (err) {
+    if (err && !res.headersSent) {
       // Frontend not built or not found — serve API info
       res.send(`
         <!DOCTYPE html>
@@ -146,8 +146,8 @@ app.use((req, res, next) => {
 
   const indexPath = path.join(frontendDir, 'index.html');
   res.sendFile(indexPath, (err) => {
-    if (err) {
-      // Frontend not available, return 404
+    if (err && !res.headersSent) {
+      // Frontend not available, fall through to 404
       next();
     }
   });

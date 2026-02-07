@@ -35,7 +35,7 @@ export function squareWebhookVerify(req: Request, res: Response, next: NextFunct
 
   try {
     // Create HMAC using the webhook signature key
-    const hmac = createHmac('sha256', config.SQUARE_WEBHOOK_SIGNATURE_KEY);
+    const hmac = createHmac('sha256', config.SQUARE_WEBHOOK_SIGNATURE_KEY || '');
 
     // Update with the raw request body (URL + body according to Square docs)
     // For webhook validation, Square uses: notification URL + request body

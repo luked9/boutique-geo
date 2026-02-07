@@ -18,6 +18,9 @@ ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
 
 RUN npm run build
 
+# Verify frontend built successfully
+RUN test -f dist/index.html || (echo "ERROR: Frontend build failed - dist/index.html not found" && exit 1)
+
 # Stage 2: Build backend
 FROM node:20-alpine AS backend-build
 WORKDIR /app/backend
@@ -25,6 +28,9 @@ COPY backend/package*.json ./
 RUN npm ci
 COPY backend/ ./
 RUN npx prisma generate && npm run build
+
+# Verify backend built successfully
+RUN test -f dist/index.js || (echo "ERROR: Backend build failed - dist/index.js not found" && exit 1)
 
 # Stage 3: Production
 FROM node:20-alpine
@@ -40,6 +46,9 @@ COPY --from=backend-build /app/backend/dist ./dist
 
 # Copy frontend build output into backend's static directory
 COPY --from=frontend-build /app/frontend/dist ./dist/frontend
+
+# Verify production image has all required files
+RUN test -f dist/index.js && test -f dist/frontend/index.html || (echo "ERROR: Missing required files in production image" && exit 1)
 
 EXPOSE 3000
 

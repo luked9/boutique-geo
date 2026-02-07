@@ -37,8 +37,7 @@ Request these OAuth permissions:
 1. Go to "Webhooks" tab
 2. Click "Add Webhook"
 3. Enter endpoint URL:
-   - Development: Use ngrok or similar tunnel (see section 5)
-   - Production: `https://your-domain.com/api/v1/square/webhook`
+   - `https://boutique-geo-production.up.railway.app/api/v1/square/webhook`
 4. Subscribe to events:
    - `payment.completed`
    - `order.updated`
@@ -144,28 +143,7 @@ Since passive NFC tags cannot change their URL:
 
 ---
 
-## 5. Local Development Tunnel (for Webhooks)
-
-Square webhooks require a public URL. For local development:
-
-### 5.1 Using ngrok
-1. Sign up at https://ngrok.com/
-2. Download and install ngrok
-3. Authenticate: `ngrok config add-authtoken YOUR_TOKEN`
-4. Start tunnel: `ngrok http 3000`
-5. Copy the HTTPS URL (e.g., `https://abc123.ngrok.io`)
-6. Update Square webhook URL to: `https://abc123.ngrok.io/api/v1/square/webhook`
-
-### 5.2 Using Cloudflare Tunnel
-1. Install cloudflared: `brew install cloudflared`
-2. Run: `cloudflared tunnel --url http://localhost:3000`
-3. Use the provided URL for webhooks
-
-**Note:** Free ngrok URLs change each restart. For persistent development, use ngrok's paid plan or Cloudflare Tunnels.
-
----
-
-## 6. iPad Hardware Setup
+## 5. iPad Hardware Setup
 
 ### 6.1 Requirements
 - iPad (any model with iPadOS 17+)
@@ -245,7 +223,59 @@ openssl rand -hex 32
 
 ---
 
-## 8. Verification Checklist
+## 8. Railway Deployment
+
+### 8.1 Required Environment Variables in Railway
+
+**All of these must be set in your Railway service's Variables tab:**
+
+**Runtime Variables (backend):**
+```
+DATABASE_URL=postgresql://...          # Railway Postgres or external DB
+ENCRYPTION_KEY=<64-char-hex>           # openssl rand -hex 32
+APP_BASE_URL=https://your-app.up.railway.app
+NODE_ENV=production
+
+# Firebase Admin (REQUIRED for auth to work)
+FIREBASE_PROJECT_ID=your-project-id
+FIREBASE_CLIENT_EMAIL=firebase-adminsdk-...@your-project.iam.gserviceaccount.com
+FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
+```
+
+**Build-time Variables (frontend — baked into JS bundle during Docker build):**
+```
+VITE_FIREBASE_API_KEY=AIzaSy...
+VITE_FIREBASE_AUTH_DOMAIN=your-project.firebaseapp.com
+VITE_FIREBASE_PROJECT_ID=your-project-id
+VITE_API_BASE_URL=                     # Leave empty — frontend uses same origin
+```
+
+**POS Provider Variables (set whichever providers you use):**
+```
+SQUARE_APP_ID=...
+SQUARE_APP_SECRET=...
+SQUARE_WEBHOOK_SIGNATURE_KEY=...
+SQUARE_ENV=sandbox                     # or production
+
+AI_API_KEY=sk-...
+AI_MODEL=gpt-4o-mini
+```
+
+### 8.2 Railway Settings
+- **Root Directory**: Leave empty (builds from project root)
+- **Builder**: Dockerfile (set in `railway.toml`)
+- The health check at `/api/v1/health` must respond within 300s
+
+### 8.3 Deploy
+Push to your connected GitHub repo. Railway will:
+1. Build the frontend with Vite (VITE_ vars baked in)
+2. Build the backend with TypeScript
+3. Run `prisma db push` on startup to sync schema
+4. Start the Node.js server on port 3000
+
+---
+
+## 9. Verification Checklist
 
 Before going live, verify:
 
@@ -261,7 +291,7 @@ Before going live, verify:
 
 ---
 
-## 9. Troubleshooting
+## 10. Troubleshooting
 
 ### Square OAuth Not Working
 - Verify redirect URL matches exactly (including trailing slash)
@@ -269,8 +299,7 @@ Before going live, verify:
 - Ensure using correct environment (sandbox vs production)
 
 ### Webhooks Not Received
-- Check ngrok/tunnel is running
-- Verify webhook URL in Square dashboard
+- Verify webhook URL in Square dashboard matches Railway URL
 - Check signature key matches
 - Look at Square webhook logs in dashboard
 
@@ -288,7 +317,7 @@ Before going live, verify:
 
 ---
 
-## 10. Support
+## 11. Support
 
 For issues:
 1. Check the logs: `docker-compose logs -f backend`
