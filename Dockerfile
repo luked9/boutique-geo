@@ -36,6 +36,9 @@ RUN test -f dist/index.js || (echo "ERROR: Backend build failed - dist/index.js 
 FROM node:20-alpine
 WORKDIR /app
 
+# Install OpenSSL — required by Prisma schema engine for db push at startup
+RUN apk add --no-cache openssl
+
 # Copy backend package files and install production deps
 COPY backend/package*.json ./
 COPY backend/prisma ./prisma
