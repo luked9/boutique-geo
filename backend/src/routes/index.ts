@@ -4,6 +4,7 @@ import { storesController } from '../controllers/stores.controller';
 import { kioskController } from '../controllers/kiosk.controller';
 import { squareController } from '../controllers/square.controller';
 import { landingController } from '../controllers/landing.controller';
+import { posController } from '../controllers/pos.controller';
 import posRoutes from './pos.routes';
 import onboardingRoutes from './onboarding.routes';
 
@@ -35,9 +36,13 @@ router.post('/kiosk/:storePublicId/sessions/:sessionPublicId/decline', (req, res
   kioskController.decline(req, res)
 );
 
-// Square OAuth
+// Square OAuth (legacy paths — Square Developer Dashboard redirect URL points here)
 router.get('/square/oauth/start', (req, res) => squareController.oauthStart(req, res));
-router.get('/square/oauth/callback', (req, res) => squareController.oauthCallback(req, res));
+router.get('/square/oauth/callback', (req, res) => {
+  // Route to the multi-provider callback so pos_connections get created
+  (req.params as Record<string, string>).provider = 'SQUARE';
+  posController.oauthCallback(req, res);
+});
 router.post('/square/webhook', (req, res) => squareController.webhook(req, res));
 
 // Review landing page API endpoints
