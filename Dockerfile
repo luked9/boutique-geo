@@ -60,4 +60,4 @@ RUN test -f dist/index.js && test -f dist/frontend/index.html || (echo "ERROR: M
 
 EXPOSE 3000
 
-CMD ["node", "dist/index.js"]
+CMD ["node", "dist/start.js"]
