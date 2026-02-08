@@ -1,10 +1,11 @@
 import { Request, Response } from 'express';
 import crypto from 'crypto';
-import { Prisma } from '@prisma/client';
+import { POSProvider, Prisma } from '@prisma/client';
 import { prisma } from '../lib/prisma';
 import { logger } from '../lib/logger';
 import { squareService } from '../services/square.service';
 import { tokenCryptoService } from '../services/tokenCrypto.service';
+import { posConnectionService } from '../services/posConnection.service';
 import { sessionService } from '../services/session.service';
 import { auditService } from '../services/audit.service';
 import { generateSessionId } from '../utils/ids';
@@ -282,14 +283,36 @@ export class SquareController {
         return;
       }
 
-      // Find store by location ID
-      const store = await prisma.store.findFirst({
-        where: { squareLocationId: locationId },
-      });
+      // Find store by location ID — check pos_connections first (new flow), then legacy stores table
+      const connection = await posConnectionService.findByProviderIdentifier(
+        POSProvider.SQUARE,
+        { locationId }
+      );
 
-      if (!store) {
-        logger.warn({ locationId }, 'Store not found for location');
-        return;
+      let store;
+      let accessToken: string;
+
+      if (connection) {
+        store = { id: connection.store.id, publicId: connection.store.publicId };
+        accessToken = await posConnectionService.getAccessToken(connection.id);
+      } else {
+        // Fallback to legacy stores table
+        const legacyStore = await prisma.store.findFirst({
+          where: { squareLocationId: locationId },
+        });
+
+        if (!legacyStore) {
+          logger.warn({ locationId }, 'Store not found for location');
+          return;
+        }
+
+        if (!legacyStore.accessTokenEnc) {
+          logger.error({ storeId: legacyStore.id }, 'Store has no access token');
+          return;
+        }
+
+        store = legacyStore;
+        accessToken = tokenCryptoService.decrypt(legacyStore.accessTokenEnc);
       }
 
       // Check if order already exists
@@ -301,14 +324,6 @@ export class SquareController {
         logger.debug({ orderId }, 'Order already processed');
         return;
       }
-
-      // Fetch order details from Square
-      if (!store.accessTokenEnc) {
-        logger.error({ storeId: store.id }, 'Store has no access token');
-        return;
-      }
-
-      const accessToken = tokenCryptoService.decrypt(store.accessTokenEnc);
       const orderDetails = await squareService.getOrder(accessToken, orderId);
 
       // Create order in database
