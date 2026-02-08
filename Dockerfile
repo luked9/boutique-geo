@@ -32,17 +32,22 @@ RUN npx prisma generate && npm run build
 # Verify backend built successfully
 RUN test -f dist/index.js || (echo "ERROR: Backend build failed - dist/index.js not found" && exit 1)
 
-# Stage 3: Production — use Debian slim (not Alpine) for Prisma + native module compatibility
-FROM node:20-slim
+# Stage 3: Production — use full Node image for native module compatibility (sodium-native, prisma)
+FROM node:20-bookworm-slim
 WORKDIR /app
 
-# Install OpenSSL — required by Prisma engine binaries
-RUN apt-get update -y && apt-get install -y --no-install-recommends openssl ca-certificates && rm -rf /var/lib/apt/lists/*
+# Install build tools for native modules (sodium-native) + OpenSSL for Prisma
+RUN apt-get update -y && \
+    apt-get install -y --no-install-recommends openssl ca-certificates python3 make g++ && \
+    rm -rf /var/lib/apt/lists/*
 
-# Copy backend package files and install production deps
+# Copy backend package files and install production deps (compiles native modules for glibc)
 COPY backend/package*.json ./
 COPY backend/prisma ./prisma
 RUN npm ci --omit=dev && npx prisma generate
+
+# Remove build tools to keep image smaller
+RUN apt-get purge -y python3 make g++ && apt-get autoremove -y
 
 # Copy backend build output
 COPY --from=backend-build /app/backend/dist ./dist
