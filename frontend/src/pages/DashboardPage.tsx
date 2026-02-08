@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { api } from '../lib/api';
 import StoreCard from '../components/StoreCard';
@@ -19,13 +19,24 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  useEffect(() => {
+  const fetchStores = useCallback(() => {
     api
       .get<{ stores: Store[] }>('/onboarding/stores')
       .then((data) => setStores(data.stores))
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
   }, []);
+
+  useEffect(() => {
+    fetchStores();
+  }, [fetchStores]);
+
+  // Re-fetch when user returns to this tab (e.g., after OAuth redirect)
+  useEffect(() => {
+    const onFocus = () => fetchStores();
+    window.addEventListener('focus', onFocus);
+    return () => window.removeEventListener('focus', onFocus);
+  }, [fetchStores]);
 
   if (loading) {
     return (

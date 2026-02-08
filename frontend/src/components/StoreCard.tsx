@@ -56,13 +56,13 @@ export default function StoreCard({
     </div>
   );
 
-  if (!isConnected) {
-    return (
-      <Link to={`/onboarding/${publicId}/connect`} state={{ storeName: name }}>
-        {card}
-      </Link>
-    );
-  }
-
-  return card;
+  // Pending → connect POS flow; Connected → store management (connect page handles redirect)
+  return (
+    <Link
+      to={`/onboarding/${publicId}/connect`}
+      state={{ storeName: name, posProvider: provider }}
+    >
+      {card}
+    </Link>
+  );
 }
