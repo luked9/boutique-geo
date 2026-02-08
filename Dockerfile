@@ -1,5 +1,5 @@
 # Stage 1: Build frontend
-FROM node:20-alpine AS frontend-build
+FROM node:22-alpine AS frontend-build
 WORKDIR /app/frontend
 COPY frontend/package*.json ./
 RUN npm ci
@@ -22,7 +22,7 @@ RUN npm run build
 RUN test -f dist/index.html || (echo "ERROR: Frontend build failed - dist/index.html not found" && exit 1)
 
 # Stage 2: Build backend
-FROM node:20-alpine AS backend-build
+FROM node:22-alpine AS backend-build
 WORKDIR /app/backend
 COPY backend/package*.json ./
 RUN npm ci
@@ -33,8 +33,11 @@ RUN npx prisma generate && npm run build
 RUN test -f dist/index.js || (echo "ERROR: Backend build failed - dist/index.js not found" && exit 1)
 
 # Stage 3: Production — use full Node image for native module compatibility (sodium-native, prisma)
-FROM node:20-bookworm-slim
+FROM node:22-bookworm-slim
 WORKDIR /app
+
+# Disable Prisma update checker (hangs db push in containers)
+ENV CHECKPOINT_DISABLE=1
 
 # Install build tools for native modules (sodium-native) + OpenSSL for Prisma
 RUN apt-get update -y && \
