@@ -8,7 +8,7 @@ export default function SuccessPage() {
     <div className="max-w-lg mx-auto">
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-gray-900">All Done</h1>
-        <p className="text-gray-500 mt-1">Step 3 of 3 - Store setup complete</p>
+        <p className="text-gray-500 mt-1">Step 4 of 4 - Store setup complete</p>
       </div>
 
       <div className="bg-white p-8 rounded-lg shadow-sm border border-gray-200 text-center">

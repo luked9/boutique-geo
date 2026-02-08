@@ -5,6 +5,7 @@ import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/DashboardPage';
 import AddStorePage from './pages/onboarding/AddStorePage';
 import ConnectPOSPage from './pages/onboarding/ConnectPOSPage';
+import SelectLocationPage from './pages/onboarding/SelectLocationPage';
 import SuccessPage from './pages/onboarding/SuccessPage';
 
 export default function App() {
@@ -16,6 +17,7 @@ export default function App() {
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/onboarding/new" element={<AddStorePage />} />
           <Route path="/onboarding/:publicId/connect" element={<ConnectPOSPage />} />
+          <Route path="/onboarding/:publicId/location" element={<SelectLocationPage />} />
           <Route path="/onboarding/:publicId/success" element={<SuccessPage />} />
         </Route>
       </Route>

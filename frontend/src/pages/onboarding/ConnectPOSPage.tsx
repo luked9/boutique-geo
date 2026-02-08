@@ -17,7 +17,7 @@ const providerColors: Record<string, string> = {
 interface StoreStatus {
   publicId: string;
   name: string;
-  posConnections: Array<{ provider: string; merchantId: string | null }>;
+  posConnections: Array<{ provider: string; merchantId: string | null; locationId: string | null }>;
 }
 
 export default function ConnectPOSPage() {
@@ -42,8 +42,10 @@ export default function ConnectPOSPage() {
 
   useEffect(() => {
     if (oauthStatus === 'success') {
-      navigate(`/onboarding/${publicId}/success`, {
-        state: { storeName: state?.storeName || storeStatus?.name },
+      // After OAuth, go to location picker (it will skip to success if only 1 location)
+      navigate(`/onboarding/${publicId}/location`, {
+        state: { storeName: state?.storeName || storeStatus?.name, posProvider: state?.posProvider },
+        replace: true,
       });
       return;
     }
@@ -65,12 +67,19 @@ export default function ConnectPOSPage() {
   const provider = state?.posProvider || storeStatus?.posConnections[0]?.provider || '';
   const storeName = state?.storeName || storeStatus?.name || '';
 
-  // If already connected, go to success
+  // If already connected, go to location picker (or success if location already set)
   useEffect(() => {
     if (storeStatus && storeStatus.posConnections.length > 0 && !oauthStatus) {
-      navigate(`/onboarding/${publicId}/success`, {
-        state: { storeName: storeStatus.name },
-      });
+      const conn = storeStatus.posConnections[0];
+      if (conn && !conn.locationId) {
+        navigate(`/onboarding/${publicId}/location`, {
+          state: { storeName: storeStatus.name, posProvider: conn.provider },
+        });
+      } else {
+        navigate(`/onboarding/${publicId}/success`, {
+          state: { storeName: storeStatus.name },
+        });
+      }
     }
   }, [storeStatus, publicId, navigate, oauthStatus]);
 
@@ -95,7 +104,7 @@ export default function ConnectPOSPage() {
     <div className="max-w-lg mx-auto">
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-gray-900">Connect POS</h1>
-        <p className="text-gray-500 mt-1">Step 2 of 3 - Connect the store's POS system</p>
+        <p className="text-gray-500 mt-1">Step 2 of 4 - Connect the store's POS system</p>
       </div>
 
       <div className="bg-white p-8 rounded-lg shadow-sm border border-gray-200 text-center">

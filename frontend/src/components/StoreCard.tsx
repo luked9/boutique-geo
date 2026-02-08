@@ -1,3 +1,5 @@
+import { Link } from 'react-router-dom';
+
 interface POSConnection {
   provider: string;
   merchantId: string | null;
@@ -18,6 +20,7 @@ const providerLabels: Record<string, string> = {
 };
 
 export default function StoreCard({
+  publicId,
   name,
   posConnections,
   createdAt,
@@ -25,7 +28,7 @@ export default function StoreCard({
   const isConnected = posConnections.length > 0;
   const provider = posConnections[0]?.provider;
 
-  return (
+  const card = (
     <div className="bg-white rounded-lg border border-gray-200 p-6 hover:shadow-md transition-shadow">
       <div className="flex justify-between items-start mb-4">
         <h3 className="text-lg font-semibold text-gray-900">{name}</h3>
@@ -44,9 +47,22 @@ export default function StoreCard({
           POS: {providerLabels[provider] || provider}
         </p>
       )}
+      {!isConnected && (
+        <p className="text-sm text-indigo-600 font-medium mb-2">Click to connect POS</p>
+      )}
       <p className="text-xs text-gray-400">
         Added {new Date(createdAt).toLocaleDateString()}
       </p>
     </div>
   );
+
+  if (!isConnected) {
+    return (
+      <Link to={`/onboarding/${publicId}/connect`} state={{ storeName: name }}>
+        {card}
+      </Link>
+    );
+  }
+
+  return card;
 }
