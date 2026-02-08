@@ -72,7 +72,7 @@ async function main() {
   // Update store with last approved session
   await prisma.store.update({
     where: { id: store.id },
-    data: { lastApprovedSessionId: approvedSession.publicId },
+    data: { lastApprovedSessionId: approvedSession.id },
   });
 
   // Create some audit events

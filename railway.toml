@@ -3,7 +3,7 @@ builder = "dockerfile"
 dockerfilePath = "./Dockerfile"
 
 [deploy]
-startCommand = "npx prisma db push --accept-data-loss --skip-generate; echo 'Prisma exit code:' $?; node dist/start.js"
+startCommand = "npx prisma db push --skip-generate; echo 'Prisma exit code:' $?; node dist/start.js"
 healthcheckPath = "/api/v1/health"
 healthcheckTimeout = 300
 restartPolicyType = "on_failure"

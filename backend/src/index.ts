@@ -166,11 +166,19 @@ app.use(errorHandler);
 
 // Start server
 const server = app.listen(config.PORT, () => {
-  logger.info({
-    port: config.PORT,
-    env: config.NODE_ENV,
-    squareEnv: config.SQUARE_ENV,
-  }, 'Server started');
+  // Import provider registry to report configured providers
+  import('./providers').then(({ providerRegistry }) => {
+    const providers = providerRegistry.getSupportedTypes();
+    const firebaseStatus = getFirebaseAdmin() ? 'configured' : 'NOT configured (onboarding disabled)';
+
+    logger.info({
+      port: config.PORT,
+      env: config.NODE_ENV,
+      squareEnv: config.SQUARE_ENV,
+      firebase: firebaseStatus,
+      posProviders: providers.length > 0 ? providers : ['none'],
+    }, `Server started on port ${config.PORT} [${config.NODE_ENV}] | Firebase: ${firebaseStatus} | POS providers: ${providers.length > 0 ? providers.join(', ') : 'none'}`);
+  });
 });
 
 // Graceful shutdown

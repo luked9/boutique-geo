@@ -10,7 +10,7 @@ export function requestLogger(req: Request, res: Response, next: NextFunction) {
     url: req.url,
     ip: req.ip,
     userAgent: req.get('user-agent'),
-  }, 'Incoming request');
+  }, `${req.method} ${req.url}`);
 
   // Log response when finished
   res.on('finish', () => {
@@ -22,7 +22,7 @@ export function requestLogger(req: Request, res: Response, next: NextFunction) {
       url: req.url,
       statusCode: res.statusCode,
       duration,
-    }, 'Request completed');
+    }, `${req.method} ${req.url} ${res.statusCode} ${duration}ms`);
   });
 
   next();

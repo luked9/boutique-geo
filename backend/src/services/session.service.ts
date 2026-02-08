@@ -59,7 +59,7 @@ export class SessionService {
       });
 
       if (!store) {
-        logger.warn({ storePublicId }, 'Store not found for next pending session');
+        logger.debug({ storePublicId }, 'Store not found for next pending session');
         return null;
       }
 
