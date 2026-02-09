@@ -31,7 +31,10 @@ export default function StoreCard({
   const card = (
     <div className="bg-white rounded-lg border border-gray-200 p-6 hover:shadow-md transition-shadow">
       <div className="flex justify-between items-start mb-4">
-        <h3 className="text-lg font-semibold text-gray-900">{name}</h3>
+        <div>
+          <h3 className="text-lg font-semibold text-gray-900">{name}</h3>
+          <p className="text-xs text-gray-400 font-mono mt-0.5">{publicId}</p>
+        </div>
         <span
           className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
             isConnected
