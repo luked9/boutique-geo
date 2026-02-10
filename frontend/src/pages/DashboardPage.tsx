@@ -27,6 +27,13 @@ export default function DashboardPage() {
       .finally(() => setLoading(false));
   }, []);
 
+  const handleDeleteStore = useCallback((publicId: string) => {
+    api
+      .delete<{ ok: boolean }>(`/onboarding/stores/${publicId}`)
+      .then(() => setStores((prev) => prev.filter((s) => s.publicId !== publicId)))
+      .catch((err) => setError(err.message));
+  }, []);
+
   useEffect(() => {
     fetchStores();
   }, [fetchStores]);
@@ -81,7 +88,7 @@ export default function DashboardPage() {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {stores.map((store) => (
-            <StoreCard key={store.publicId} {...store} />
+            <StoreCard key={store.publicId} {...store} onDelete={handleDeleteStore} />
           ))}
         </div>
       )}

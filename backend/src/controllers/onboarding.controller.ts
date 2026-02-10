@@ -214,6 +214,32 @@ class OnboardingController {
       return res.status(500).json({ error: 'Failed to generate OAuth URL' });
     }
   }
+  /**
+   * DELETE /api/v1/onboarding/stores/:publicId
+   * Permanently deletes a store and all associated data.
+   */
+  async deleteStore(req: AuthenticatedRequest, res: Response) {
+    try {
+      const { publicId } = req.params;
+
+      const store = await prisma.store.findUnique({ where: { publicId } });
+      if (!store) {
+        return res.status(404).json({ error: 'Store not found' });
+      }
+
+      await prisma.store.delete({ where: { publicId } });
+
+      logger.info(
+        { storeId: store.id, publicId, employeeEmail: req.user?.email },
+        'Store deleted'
+      );
+
+      return res.json({ ok: true });
+    } catch (error) {
+      logger.error({ error }, 'Failed to delete store');
+      return res.status(500).json({ error: 'Failed to delete store' });
+    }
+  }
 }
 
 export const onboardingController = new OnboardingController();

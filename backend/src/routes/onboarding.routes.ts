@@ -11,5 +11,6 @@ router.get('/stores', (req, res) => onboardingController.listStores(req, res));
 router.post('/stores', (req, res) => onboardingController.createStore(req, res));
 router.get('/stores/:publicId/status', (req, res) => onboardingController.getStoreStatus(req, res));
 router.get('/stores/:publicId/oauth-url/:provider', (req, res) => onboardingController.getOAuthUrl(req, res));
+router.delete('/stores/:publicId', (req, res) => onboardingController.deleteStore(req, res));
 
 export default router;
