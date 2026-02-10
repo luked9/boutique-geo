@@ -145,7 +145,9 @@ class WebhookService {
     // Fetch full order details from provider
     const accessToken = await posConnectionService.getAccessToken(connection.id);
     const providerImpl = providerRegistry.get(provider);
-    const orderDetails = await providerImpl.getOrder(accessToken, transaction.externalOrderId);
+    const metadata = connection.providerMetadata as Record<string, unknown> | null;
+    const shopDomain = metadata?.shopDomain as string | undefined;
+    const orderDetails = await providerImpl.getOrder(accessToken, transaction.externalOrderId, { shop: shopDomain });
 
     // Create order
     const order = await prisma.order.create({

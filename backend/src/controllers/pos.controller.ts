@@ -15,12 +15,11 @@ function getWebhookSecret(provider: POSProvider): string {
     case 'SQUARE':
       return config.SQUARE_WEBHOOK_SIGNATURE_KEY || '';
     case 'SHOPIFY':
-      // Will be added when Shopify is configured
-      return (config as any).SHOPIFY_WEBHOOK_SECRET || '';
+      return config.SHOPIFY_WEBHOOK_SECRET || '';
     case 'LIGHTSPEED':
-      return (config as any).LIGHTSPEED_WEBHOOK_SECRET || '';
+      return config.LIGHTSPEED_WEBHOOK_SECRET || '';
     case 'TOAST':
-      return (config as any).TOAST_WEBHOOK_SECRET || '';
+      return config.TOAST_WEBHOOK_SECRET || '';
     default:
       throw new Error(`No webhook secret configured for provider: ${provider}`);
   }
@@ -167,6 +166,7 @@ export class POSController {
           providerMetadata: {
             businessName: merchantInfo.businessName,
             locations: merchantInfo.locations,
+            ...(shopForMerchantInfo ? { shopDomain: shopForMerchantInfo } : {}),
           },
         }
       );

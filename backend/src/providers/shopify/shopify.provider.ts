@@ -206,9 +206,17 @@ export class ShopifyProvider extends BasePOSProvider {
   /**
    * Fetches order details from Shopify
    */
-  async getOrder(accessToken: string, orderId: string): Promise<NormalizedOrder> {
+  async getOrder(accessToken: string, orderId: string, options?: { shop?: string }): Promise<NormalizedOrder> {
     try {
-      const shopDomain = this.extractShopFromToken(accessToken);
+      let shopDomain = options?.shop;
+      if (!shopDomain) {
+        throw new Error('Shop domain is required for Shopify API calls');
+      }
+      // Normalize shop domain
+      shopDomain = shopDomain.replace(/^https?:\/\//, '').replace(/\/$/, '');
+      if (!shopDomain.includes('.myshopify.com')) {
+        shopDomain = `${shopDomain}.myshopify.com`;
+      }
 
       const response = await fetch(
         `https://${shopDomain}/admin/api/${shopifyConfig.apiVersion}/orders/${orderId}.json`,
@@ -351,34 +359,6 @@ export class ShopifyProvider extends BasePOSProvider {
       locationId: data.location_id ? String(data.location_id) : undefined,
       merchantId: data.shop_id ? String(data.shop_id) : undefined,
     };
-  }
-
-  /**
-   * Extract shop domain from redirect URI
-   * In practice, this would be passed differently
-   */
-  private extractShopDomain(redirectUri: string): string | null {
-    // This is a simplified extraction - in practice, you'd get this from
-    // the callback URL params or store it during the OAuth initiation
-    try {
-      const url = new URL(redirectUri);
-      const shop = url.searchParams.get('shop');
-      return shop;
-    } catch {
-      return null;
-    }
-  }
-
-  /**
-   * Extract shop domain from token or stored metadata
-   * This is a placeholder - in practice, shop domain would be stored with the connection
-   */
-  private extractShopFromToken(_accessToken: string): string {
-    // In a real implementation, the shop domain would be stored in POSConnection.providerMetadata
-    // and passed to these methods. For now, throw an error indicating proper setup is needed.
-    throw new Error(
-      'Shop domain must be stored in POSConnection.providerMetadata.shopDomain'
-    );
   }
 
   /**

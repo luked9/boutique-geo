@@ -134,7 +134,7 @@ export interface IPOSProvider {
    * @param orderId - Provider's order ID
    * @returns Normalized order with line items
    */
-  getOrder(accessToken: string, orderId: string): Promise<NormalizedOrder>;
+  getOrder(accessToken: string, orderId: string, options?: { shop?: string }): Promise<NormalizedOrder>;
 
   /**
    * Validates webhook signature and parses the payload
