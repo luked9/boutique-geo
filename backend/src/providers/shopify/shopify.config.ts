@@ -8,7 +8,7 @@ export const shopifyConfig = {
   clientSecret: config.SHOPIFY_CLIENT_SECRET || '',
   webhookSecret: config.SHOPIFY_WEBHOOK_SECRET || '',
   scopes: 'read_orders,read_products',
-  apiVersion: '2025-01',
+  apiVersion: '2026-01',
 } as const;
 
 /**
